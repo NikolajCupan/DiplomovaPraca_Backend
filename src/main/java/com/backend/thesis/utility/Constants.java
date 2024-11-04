@@ -1,4 +1,4 @@
-package com.backend.thesis.helper;
+package com.backend.thesis.utility;
 
 public class Constants {
     private Constants() {

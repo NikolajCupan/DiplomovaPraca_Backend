@@ -1,5 +1,6 @@
-package com.backend.thesis.helper;
+package com.backend.thesis.utility;
 
+import com.backend.thesis.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -9,16 +10,16 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Component
 public class RequestInterceptor implements HandlerInterceptor {
+    private final UserService userService;
+
+    public RequestInterceptor(final UserService userService) {
+        this.userService = userService;
+    }
+
     @CrossOrigin
     @Override
     public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object object) {
-        final String cookie = request.getHeader(Constants.SESSION_COOKIE_NAME);
-        if (cookie == null || cookie.isEmpty()) {
-            response.setHeader(Constants.SESSION_COOKIE_NAME, Helper.getUniqueID());
-        } else {
-            response.setHeader(Constants.SESSION_COOKIE_NAME, cookie);
-        }
-
+        this.userService.processRequest(request, response);
         return true;
     }
 

@@ -2,7 +2,6 @@ package com.backend.thesis.domain.entity;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,8 +16,21 @@ public class UserEntity {
     private String cookie;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "last_accessed_at", nullable = false)
     private LocalDateTime lastAccessedAt;
+
+    public UserEntity() {
+    }
+
+    public UserEntity(final String cookie, final LocalDateTime createdAt, final LocalDateTime lastAccessedAt) {
+        this.cookie = cookie;
+        this.createdAt = createdAt;
+        this.lastAccessedAt = lastAccessedAt;
+    }
+
+    public void setLastAccessedAt(final LocalDateTime lastAccessedAt) {
+        this.lastAccessedAt = lastAccessedAt;
+    }
 }
