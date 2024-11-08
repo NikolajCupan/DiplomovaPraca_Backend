@@ -5,12 +5,42 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class Helper {
     private Helper() {
+    }
+
+    private static String normalizeDateFormat(final String dateFormat) {
+        StringBuilder builder = new StringBuilder();
+        for (char c : dateFormat.toCharArray()) {
+            switch (c) {
+                case 'Y':
+                    builder.append('y');
+                    break;
+                case 'm':
+                    builder.append('M');
+                    break;
+                case 'D':
+                    builder.append('d');
+                    break;
+                case 'h':
+                    builder.append('H');
+                    break;
+                default:
+                    builder.append(c);
+                    break;
+            }
+        }
+
+        return builder.toString();
+    }
+
+    private static boolean patternIncludesHours(final String pattern) {
+        return pattern.contains("h") || pattern.contains("H");
     }
 
     public static String getUniqueID() {
@@ -31,8 +61,18 @@ public class Helper {
     }
 
     public static LocalDateTime stringToLocalDateTime(final String stringLocalDate) {
-        final DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy/MM/dd-HH");
-        return LocalDateTime.parse(stringLocalDate, pattern);
+        return Helper.stringToLocalDateTime(stringLocalDate, Constants.DEFAULT_DATE_TIME_FORMAT);
+    }
+
+    public static LocalDateTime stringToLocalDateTime(final String stringLocalDate, final String dateFormat) {
+        final String normalizedDateFormat = Helper.normalizeDateFormat(dateFormat);
+        final DateTimeFormatter pattern = DateTimeFormatter.ofPattern(normalizedDateFormat);
+
+        if (Helper.patternIncludesHours(normalizedDateFormat)) {
+            return LocalDateTime.parse(stringLocalDate, pattern);
+        } else {
+            return LocalDate.parse(stringLocalDate, pattern).atStartOfDay();
+        }
     }
 
     public static Frequency stringToFrequency(final String stringFrequency) {
@@ -45,5 +85,14 @@ public class Helper {
             case "yearly" -> Frequency.YEARLY;
             default -> throw new IllegalArgumentException("Invalid string frequency " + stringFrequency);
         };
+    }
+
+    public static boolean stringIsNumeric(final String stringToCheck) {
+        try {
+            Double.parseDouble(stringToCheck);
+            return true;
+        } catch (final Exception exception) {
+            return false;
+        }
     }
 }

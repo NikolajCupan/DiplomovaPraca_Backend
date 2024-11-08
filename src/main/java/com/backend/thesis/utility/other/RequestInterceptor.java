@@ -1,4 +1,4 @@
-package com.backend.thesis.utility;
+package com.backend.thesis.utility.other;
 
 import com.backend.thesis.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;

@@ -3,6 +3,7 @@ package com.backend.thesis.controller;
 import com.backend.thesis.service.DatasetService;
 import com.backend.thesis.utility.Constants;
 import com.backend.thesis.utility.Helper;
+import com.backend.thesis.utility.Type;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Optional;
 
 @RestController
 public class FileController {
@@ -22,20 +25,34 @@ public class FileController {
     @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
     @PostMapping(path = "/dataset/upload")
     public ResponseEntity<String> handleDatasetUpload(
-            @RequestParam(name = "startDateTime") final String startDateTime,
+            @RequestParam(name = "datasetName") final String datasetName,
             @RequestParam(name = "file") final MultipartFile file,
+            @RequestParam(name = "startDateTime", required = false) final Optional<String> startDateTime,
+            @RequestParam(name = "dateFormat", required = false) final Optional<String> dateFormat,
             @RequestParam(name = "frequency") final String frequency,
-            @RequestParam(name = "hasHeader") final String hasHeader,
-            @RequestParam(name = "hasDateColumn") final String hasDateColumn
+            @RequestParam(name = "dateColumnName", required = false) final Optional<String> dateColumnName,
+            @RequestParam(name = "dataColumnName", required = false) final Optional<String> dataColumnName,
+            @RequestParam(name = "datasetHasDateColumn") final String datasetHasDateColumn,
+            @RequestParam(name = "datasetHasHeader") final String datasetHasHeader,
+            @RequestParam(name = "datasetHasMissingValues") final String datasetHasMissingValues
     ) {
-        this.datasetService.saveDataset(
-                Helper.stringToLocalDateTime(startDateTime),
+        Type.ActionResult result = this.datasetService.tryToSaveDataset(
+                datasetName,
                 file,
+                startDateTime.map(Helper::stringToLocalDateTime),
+                dateFormat,
                 Helper.stringToFrequency(frequency),
-                Helper.stringToBoolean(hasHeader),
-                Helper.stringToBoolean(hasDateColumn)
+                dateColumnName,
+                dataColumnName,
+                Helper.stringToBoolean(datasetHasDateColumn),
+                Helper.stringToBoolean(datasetHasHeader),
+                Helper.stringToBoolean(datasetHasMissingValues)
         );
 
-        return Helper.prepareResponse("Hello", HttpStatus.OK);
+        if (result.success()) {
+            return Helper.prepareResponse("OK", HttpStatus.OK);
+        } else {
+            return Helper.prepareResponse(result.error(), HttpStatus.BAD_REQUEST);
+        }
     }
 }
