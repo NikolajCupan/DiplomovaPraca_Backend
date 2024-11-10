@@ -4,6 +4,7 @@ import com.backend.thesis.service.DatasetService;
 import com.backend.thesis.utility.Constants;
 import com.backend.thesis.utility.Helper;
 import com.backend.thesis.utility.Type;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,6 +26,7 @@ public class FileController {
     @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
     @PostMapping(path = "/dataset/upload")
     public ResponseEntity<String> handleDatasetUpload(
+            final HttpServletRequest request,
             @RequestParam(name = "datasetName") final String datasetName,
             @RequestParam(name = "file") final MultipartFile file,
             @RequestParam(name = "startDateTime", required = false) final Optional<String> startDateTime,
@@ -37,6 +39,7 @@ public class FileController {
             @RequestParam(name = "datasetHasMissingValues") final String datasetHasMissingValues
     ) {
         Type.ActionResult result = this.datasetService.tryToSaveDataset(
+                request.getHeader(Constants.SESSION_COOKIE_NAME),
                 datasetName,
                 file,
                 startDateTime.map(Helper::stringToLocalDateTime),
@@ -50,7 +53,7 @@ public class FileController {
         );
 
         if (result.success()) {
-            return Helper.prepareResponse("OK", HttpStatus.OK);
+            return Helper.prepareResponse("Dataset bol úspešne uložený", HttpStatus.OK);
         } else {
             return Helper.prepareResponse(result.error(), HttpStatus.BAD_REQUEST);
         }

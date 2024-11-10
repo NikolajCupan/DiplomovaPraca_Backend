@@ -13,4 +13,8 @@ public enum Frequency {
     Frequency(String label) {
         this.label = label;
     }
+
+    public String toString() {
+        return this.label;
+    }
 }

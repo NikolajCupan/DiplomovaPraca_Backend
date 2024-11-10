@@ -36,4 +36,5 @@ build/
 
 ### Custom ###
 learning/
+storage/
 secret.properties

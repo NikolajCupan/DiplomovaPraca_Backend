@@ -48,7 +48,7 @@ public class CsvParser {
                 final LocalDateTime expectedDate = CsvParser.getNextDate(dateColumn.getLast(), frequency);
 
                 if (!extractedDate.isEqual(expectedDate)) {
-                    throw new RequestException("Chyba pri spracovaní stĺpca s dátumom (nesprávne nastavená frekvencia)!");
+                    throw new RequestException("Chyba pri spracovaní stĺpca s dátumom (nesprávne nastavená frekvencia)");
                 }
 
                 dateColumn.add(extractedDate);
@@ -56,7 +56,7 @@ public class CsvParser {
 
             return dateColumn;
         } catch (final Exception exception) {
-            throw new RequestException("Chyba pri spracovaní stĺpca s dátumom!");
+            throw new RequestException("Chyba pri spracovaní stĺpca s dátumom");
         }
     }
 
@@ -150,11 +150,11 @@ public class CsvParser {
             final boolean datasetHasHeader,
             final boolean datasetHasMissingValues) throws IOException, CsvException, RequestException {
         if (datasetHasMissingValues && !datasetHasDateColumn) {
-            throw new RequestException("Dataset s chýbajúcimi hodnotami musí obsahovať stĺpec s dátumom!");
+            throw new RequestException("Dataset s chýbajúcimi hodnotami musí obsahovať stĺpec s dátumom");
         } else if (!datasetHasDateColumn && startDateTime.isEmpty()) {
-            throw new RequestException("Začiatočný dátum musí byť zadaný alebo dataset musí obsahovať stĺpec s dátumom!");
+            throw new RequestException("Začiatočný dátum musí byť zadaný alebo dataset musí obsahovať stĺpec s dátumom");
         } else if (datasetHasDateColumn && dateFormat.isEmpty()) {
-            throw new RequestException("Dataset so stĺpcom s dátumom musí mať zadaný formát dátumu!");
+            throw new RequestException("Dataset so stĺpcom s dátumom musí mať zadaný formát dátumu");
         }
 
         final List<String[]> rawCsv = CsvParser.readCsv(file);
@@ -190,7 +190,7 @@ public class CsvParser {
                 CsvParser.generateDateColumn(startDateTime.get(), frequency, dataColumn.size());
 
         if (dataColumn.size() != dateColumn.size()) {
-            throw new RequestException("Chyba pri spracovaní súboru!");
+            throw new RequestException("Chyba pri spracovaní súboru");
         }
 
         for (int i = 0; i < dataColumn.size(); ++i) {

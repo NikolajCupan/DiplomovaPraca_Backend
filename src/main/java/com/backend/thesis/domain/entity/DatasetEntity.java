@@ -20,12 +20,39 @@ public class DatasetEntity {
     @Column(name = "id_dataset", nullable = false, unique = true)
     private Long idDataset;
 
-    @Column(name = "md5", nullable = false, unique = true)
-    private String md5;
+    @Column(name = "dataset_name", nullable = false)
+    private String datasetName;
+
+    @Column(name = "column_name", nullable = false)
+    private String columnName;
 
     @Column(name = "file_name", nullable = false, unique = true)
     private String fileName;
 
     @Column(name = "start_at", nullable = false)
     private LocalDateTime startAt;
+
+    @Column(name = "end_at", nullable = false)
+    private LocalDateTime endAt;
+
+    private DatasetEntity() {
+    }
+
+    public DatasetEntity(
+            final Long idUser,
+            final Long idFrequency,
+            final String datasetName,
+            final String columnName,
+            final String fileName,
+            final LocalDateTime startAt,
+            final LocalDateTime endAt
+    ) {
+        this.idUser = idUser;
+        this.idFrequency = idFrequency;
+        this.datasetName = datasetName;
+        this.columnName = columnName;
+        this.fileName = fileName;
+        this.startAt = startAt;
+        this.endAt = endAt;
+    }
 }

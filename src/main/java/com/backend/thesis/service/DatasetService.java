@@ -1,7 +1,14 @@
 package com.backend.thesis.service;
 
 import com.backend.thesis.domain.dto.Frequency;
+import com.backend.thesis.domain.entity.DatasetEntity;
+import com.backend.thesis.domain.entity.FrequencyEntity;
+import com.backend.thesis.domain.entity.UserEntity;
 import com.backend.thesis.domain.repository.IDatasetRepository;
+import com.backend.thesis.domain.repository.IFrequencyRepository;
+import com.backend.thesis.domain.repository.IUserRepository;
+import com.backend.thesis.utility.Constants;
+import com.backend.thesis.utility.Helper;
 import com.backend.thesis.utility.Type;
 import com.backend.thesis.utility.csv.CsvFile;
 import com.backend.thesis.utility.csv.CsvParser;
@@ -15,12 +22,17 @@ import java.util.Optional;
 @Service
 public class DatasetService {
     private final IDatasetRepository datasetRepository;
+    private final IUserRepository userRepository;
+    private final IFrequencyRepository frequencyRepository;
 
-    public DatasetService(final IDatasetRepository datasetRepository) {
+    public DatasetService(final IDatasetRepository datasetRepository, final IUserRepository userRepository, final IFrequencyRepository frequencyRepository) {
         this.datasetRepository = datasetRepository;
+        this.userRepository = userRepository;
+        this.frequencyRepository = frequencyRepository;
     }
 
     public Type.ActionResult tryToSaveDataset(
+            final String cookie,
             final String datasetName,
             final MultipartFile file,
             final Optional<LocalDateTime> startDateTime,
@@ -33,7 +45,28 @@ public class DatasetService {
             final boolean datasetHasMissingValues
     ) {
         try {
-            final CsvFile csv = CsvParser.parseCsv(file, startDateTime, dateFormat, frequency, dateColumnName, dataColumnName, datasetHasDateColumn, datasetHasHeader, datasetHasMissingValues);
+            final CsvFile csv = CsvParser.parseCsv(
+                    file, startDateTime, dateFormat, frequency, dateColumnName, dataColumnName, datasetHasDateColumn, datasetHasHeader, datasetHasMissingValues
+            );
+
+            String finalDatasetName = datasetName.isEmpty() ? Constants.DEFAULT_DATESET_NAME : datasetName;
+            finalDatasetName += Helper.getUniqueID();
+            csv.saveToFile(finalDatasetName);
+
+            final UserEntity userEntity = this.userRepository.findByCookie(cookie);
+            final FrequencyEntity frequencyEntity = this.frequencyRepository.findByFrequencyType(frequency.toString());
+
+            final DatasetEntity dataset = new DatasetEntity(
+                    userEntity.getIdUser(),
+                    frequencyEntity.getIdFrequency(),
+                    finalDatasetName,
+                    (dataColumnName.isEmpty() || dataColumnName.get().isEmpty()) ? Constants.DEFAULT_DATA_COLUMN_NAME : dataColumnName.get(),
+                    finalDatasetName,
+                    csv.getStartDateTime(),
+                    csv.getEndDateTime()
+            );
+            this.datasetRepository.save(dataset);
+
             return new Type.ActionResult(true);
         } catch (final RequestException exception) {
             return new Type.ActionResult(false, exception.getMessage());

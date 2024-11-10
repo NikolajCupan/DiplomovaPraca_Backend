@@ -30,6 +30,10 @@ public class UserEntity {
         this.lastAccessedAt = lastAccessedAt;
     }
 
+    public Long getIdUser() {
+        return this.idUser;
+    }
+
     public void setLastAccessedAt(final LocalDateTime lastAccessedAt) {
         this.lastAccessedAt = lastAccessedAt;
     }

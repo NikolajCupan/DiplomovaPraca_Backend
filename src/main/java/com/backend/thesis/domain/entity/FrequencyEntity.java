@@ -12,4 +12,8 @@ public class FrequencyEntity {
 
     @Column(name = "frequency_type", nullable = false, unique = true)
     private String frequencyType;
+
+    public Long getIdFrequency() {
+        return idFrequency;
+    }
 }

@@ -14,6 +14,11 @@ public class Helper {
     private Helper() {
     }
 
+    public static <T> ResponseEntity<T> prepareResponse(final T body, final HttpStatus status) {
+        final HttpHeaders responseHeaders = new HttpHeaders();
+        return new ResponseEntity<>(body, responseHeaders, status);
+    }
+
     private static String normalizeDateFormat(final String dateFormat) {
         StringBuilder builder = new StringBuilder();
         for (char c : dateFormat.toCharArray()) {
@@ -47,13 +52,13 @@ public class Helper {
         return UUID.randomUUID().toString();
     }
 
-    public static <T> ResponseEntity<T> prepareResponse(final T body, final HttpStatus status) {
-        final HttpHeaders responseHeaders = new HttpHeaders();
-        return new ResponseEntity<>(body, responseHeaders, status);
-    }
-
     public static LocalDateTime currentDateTime() {
         return LocalDateTime.now();
+    }
+
+    public static String localDateTimeToString(final LocalDateTime dateTime) {
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DEFAULT_DATE_TIME_FORMAT);
+        return dateTime.format(formatter);
     }
 
     public static boolean stringToBoolean(final String stringBoolean) {
