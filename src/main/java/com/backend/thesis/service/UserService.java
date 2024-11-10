@@ -22,6 +22,10 @@ public class UserService {
 
         response.setHeader(Constants.SESSION_COOKIE_NAME, currentCookie);
         this.refreshUser(currentCookie);
+
+        if (requestCookie == null || !requestCookie.isEmpty()) {
+            request.setAttribute(Constants.SESSION_COOKIE_NAME, currentCookie);
+        }
     }
 
     private void refreshUser(final String cookie) {

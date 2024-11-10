@@ -35,7 +35,7 @@ public class DatasetEntity {
     @Column(name = "end_at", nullable = false)
     private LocalDateTime endAt;
 
-    private DatasetEntity() {
+    public DatasetEntity() {
     }
 
     public DatasetEntity(
@@ -54,5 +54,17 @@ public class DatasetEntity {
         this.fileName = fileName;
         this.startAt = startAt;
         this.endAt = endAt;
+    }
+
+    public Long getIdFrequency() {
+        return this.idFrequency;
+    }
+
+    public Long getIdDataset() {
+        return this.idDataset;
+    }
+
+    public String getDatasetName() {
+        return this.datasetName;
     }
 }

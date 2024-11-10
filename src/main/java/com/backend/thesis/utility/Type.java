@@ -1,17 +1,25 @@
 package com.backend.thesis.utility;
 
 public class Type {
-    public record ActionResult(
+    public record ActionResult<T>(
             boolean success,
-            String error
+            String message,
+            T data
     ) {
-        public ActionResult(final boolean success) {
-            this(success, "");
-        }
-
-        public ActionResult(final boolean success, final String error) {
+        public ActionResult(final boolean success, final String message, final T data) {
             this.success = success;
-            this.error = error;
+            this.message = message;
+            this.data = data;
+        }
+    }
+
+    public record RequestResult<T>(
+            String message,
+            T data
+    ) {
+        public RequestResult(final String message, final T data) {
+            this.message = message;
+            this.data = data;
         }
     }
 }

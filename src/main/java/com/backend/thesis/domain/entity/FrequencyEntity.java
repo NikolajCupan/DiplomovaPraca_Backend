@@ -16,4 +16,8 @@ public class FrequencyEntity {
     public Long getIdFrequency() {
         return idFrequency;
     }
+
+    public String getFrequencyType() {
+        return this.frequencyType;
+    }
 }
