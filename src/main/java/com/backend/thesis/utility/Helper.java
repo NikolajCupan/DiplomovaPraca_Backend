@@ -1,9 +1,6 @@
 package com.backend.thesis.utility;
 
 import com.backend.thesis.domain.dto.Frequency;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,11 +9,6 @@ import java.util.UUID;
 
 public class Helper {
     private Helper() {
-    }
-
-    public static <T> ResponseEntity<T> prepareResponse(final T body, final HttpStatus status) {
-        final HttpHeaders responseHeaders = new HttpHeaders();
-        return new ResponseEntity<>(body, responseHeaders, status);
     }
 
     private static String normalizeDateFormat(final String dateFormat) {
@@ -59,6 +51,10 @@ public class Helper {
     public static String localDateTimeToString(final LocalDateTime dateTime) {
         final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DEFAULT_DATE_TIME_FORMAT);
         return dateTime.format(formatter);
+    }
+
+    public static Long stringToLong(final String string) {
+        return Long.parseLong(string);
     }
 
     public static boolean stringToBoolean(final String stringBoolean) {

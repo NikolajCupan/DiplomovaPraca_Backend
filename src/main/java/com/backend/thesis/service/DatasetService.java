@@ -15,9 +15,13 @@ import com.backend.thesis.utility.Type;
 import com.backend.thesis.utility.csv.CsvFile;
 import com.backend.thesis.utility.csv.CsvParser;
 import com.backend.thesis.utility.other.RequestException;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +86,32 @@ public class DatasetService {
         }
     }
 
-    public Type.ActionResult<List<DatasetInfoDto>> getDatasetsOfUser(final String cookie) {
+    public Type.ActionResult<ImmutablePair<InputStreamResource, File>> getDatasetOfUser(final String cookie, final Long idDataset) {
+        try {
+            final Optional<DatasetEntity> datasetEntity = this.datasetRepository.findById(idDataset);
+            if (datasetEntity.isEmpty()) {
+                return new Type.ActionResult<>(false, "Dataset nebol nájdený", null);
+            }
+
+            final Optional<UserEntity> userEntity = this.userRepository.findById(datasetEntity.get().getIdUser());
+            if (userEntity.isEmpty()) {
+                return new Type.ActionResult<>(false, "Používateľ nebol nájdený", null);
+            }
+
+            if (!userEntity.get().getCookie().equals(cookie)) {
+                return new Type.ActionResult<>(false, "Používateľ nemá oprávnenie na stiahnutie daného súboru", null);
+            }
+
+            final File rawFile = new File(Constants.STORAGE_DATASET_PATH, datasetEntity.get().getFileName() + ".csv");
+            final InputStreamResource resource = new InputStreamResource(new FileInputStream(rawFile));
+
+            return new Type.ActionResult<>(true, "Dataset bol odoslaný", new ImmutablePair<>(resource, rawFile));
+        } catch (final Exception exception) {
+            return new Type.ActionResult<>(false, "Neznáma chyba", null);
+        }
+    }
+
+    public Type.ActionResult<List<DatasetInfoDto>> getAllDatasetsOfUser(final String cookie) {
         final UserEntity userEntity = this.userRepository.findByCookie(cookie);
         final List<DatasetEntity> datasetEntities = this.datasetRepository.findByIdUser(userEntity.getIdUser());
 

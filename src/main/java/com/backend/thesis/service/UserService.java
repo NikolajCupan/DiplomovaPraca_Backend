@@ -18,13 +18,25 @@ public class UserService {
 
     public void processRequest(final HttpServletRequest request, final HttpServletResponse response) {
         final String requestCookie = request.getHeader(Constants.SESSION_COOKIE_NAME);
-        final String currentCookie = (requestCookie == null || requestCookie.isEmpty()) ? Helper.getUniqueID() : requestCookie;
+        String usedCookie = "";
 
-        response.setHeader(Constants.SESSION_COOKIE_NAME, currentCookie);
-        this.refreshUser(currentCookie);
+        if (requestCookie != null && !requestCookie.isEmpty()) {
+            final UserEntity userEntity = this.userRepository.findByCookie(requestCookie);
+
+            if (userEntity != null) {
+                usedCookie = userEntity.getCookie();
+            }
+        }
+
+        if (usedCookie.isEmpty()) {
+            usedCookie = Helper.getUniqueID();
+        }
+
+        response.setHeader(Constants.SESSION_COOKIE_NAME, usedCookie);
+        this.refreshUser(usedCookie);
 
         if (requestCookie == null || !requestCookie.isEmpty()) {
-            request.setAttribute(Constants.SESSION_COOKIE_NAME, currentCookie);
+            request.setAttribute(Constants.SESSION_COOKIE_NAME, usedCookie);
         }
     }
 

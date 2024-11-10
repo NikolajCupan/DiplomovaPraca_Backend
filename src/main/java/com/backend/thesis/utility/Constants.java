@@ -12,4 +12,6 @@ public class Constants {
     public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy/MM/dd-HH";
 
     public static final String STORAGE_DATASET_PATH = "storage/dataset";
+
+    public static final String CSV_DELIMITER = ",";
 }

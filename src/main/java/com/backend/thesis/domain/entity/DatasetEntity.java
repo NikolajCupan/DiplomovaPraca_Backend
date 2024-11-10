@@ -56,6 +56,10 @@ public class DatasetEntity {
         this.endAt = endAt;
     }
 
+    public Long getIdUser() {
+        return this.idUser;
+    }
+
     public Long getIdFrequency() {
         return this.idFrequency;
     }
@@ -66,5 +70,9 @@ public class DatasetEntity {
 
     public String getDatasetName() {
         return this.datasetName;
+    }
+
+    public String getFileName() {
+        return this.fileName;
     }
 }

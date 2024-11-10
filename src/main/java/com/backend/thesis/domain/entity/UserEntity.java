@@ -34,6 +34,10 @@ public class UserEntity {
         return this.idUser;
     }
 
+    public String getCookie() {
+        return this.cookie;
+    }
+
     public void setLastAccessedAt(final LocalDateTime lastAccessedAt) {
         this.lastAccessedAt = lastAccessedAt;
     }
