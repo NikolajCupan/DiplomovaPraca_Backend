@@ -60,7 +60,7 @@ public class CsvParser {
         }
     }
 
-    private static List<String> extractColumn(final List<String[]> rawCsv, final int index, final boolean numeric) throws RequestException {
+    private static List<String> extractColumn(final List<String[]> rawCsv, final int index, final boolean numeric) {
         List<String> column = new ArrayList<>();
 
         for (final String[] row : rawCsv) {
@@ -147,11 +147,8 @@ public class CsvParser {
             final Optional<String> dateColumnName,
             final Optional<String> dataColumnName,
             final boolean datasetHasDateColumn,
-            final boolean datasetHasHeader,
-            final boolean datasetHasMissingValues) throws IOException, CsvException, RequestException {
-        if (datasetHasMissingValues && !datasetHasDateColumn) {
-            throw new RequestException("Dataset s chýbajúcimi hodnotami musí obsahovať stĺpec s dátumom");
-        } else if (!datasetHasDateColumn && startDateTime.isEmpty()) {
+            final boolean datasetHasHeader) throws IOException, CsvException, RequestException {
+        if (!datasetHasDateColumn && startDateTime.isEmpty()) {
             throw new RequestException("Začiatočný dátum musí byť zadaný alebo dataset musí obsahovať stĺpec s dátumom");
         } else if (datasetHasDateColumn && dateFormat.isEmpty()) {
             throw new RequestException("Dataset so stĺpcom s dátumom musí mať zadaný formát dátumu");
@@ -191,6 +188,10 @@ public class CsvParser {
 
         if (dataColumn.size() != dateColumn.size()) {
             throw new RequestException("Chyba pri spracovaní súboru");
+        }
+
+        if (dataColumn.stream().allMatch(String::isEmpty)) {
+            throw new RequestException("Stĺpec s dátami neobsahuje platné údaje");
         }
 
         for (int i = 0; i < dataColumn.size(); ++i) {

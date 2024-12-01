@@ -51,12 +51,11 @@ public class DatasetService {
             final Optional<String> dateColumnName,
             final Optional<String> dataColumnName,
             final boolean datasetHasDateColumn,
-            final boolean datasetHasHeader,
-            final boolean datasetHasMissingValues
+            final boolean datasetHasHeader
     ) {
         try {
             final CsvFile csv = CsvParser.parseCsv(
-                    file, startDateTime, dateFormat, frequency, dateColumnName, dataColumnName, datasetHasDateColumn, datasetHasHeader, datasetHasMissingValues
+                    file, startDateTime, dateFormat, frequency, dateColumnName, dataColumnName, datasetHasDateColumn, datasetHasHeader
             );
 
             final String finalDatasetName = datasetName.isEmpty() ? Constants.DEFAULT_DATESET_NAME : datasetName;
@@ -86,7 +85,7 @@ public class DatasetService {
         }
     }
 
-    public Type.ActionResult<ImmutablePair<InputStreamResource, File>> getDatasetOfUser(final String cookie, final Long idDataset) {
+    public Type.ActionResult<DatasetEntity> getDatasetOfUser(final String cookie, final Long idDataset) {
         try {
             final Optional<DatasetEntity> datasetEntity = this.datasetRepository.findById(idDataset);
             if (datasetEntity.isEmpty()) {
@@ -102,10 +101,7 @@ public class DatasetService {
                 return new Type.ActionResult<>(false, "Používateľ nemá oprávnenie na stiahnutie daného súboru", null);
             }
 
-            final File rawFile = new File(Constants.STORAGE_DATASET_PATH, datasetEntity.get().getFileName() + ".csv");
-            final InputStreamResource resource = new InputStreamResource(new FileInputStream(rawFile));
-
-            return new Type.ActionResult<>(true, "Dataset bol odoslaný", new ImmutablePair<>(resource, rawFile));
+            return new Type.ActionResult<>(true, "Dataset bol odoslaný", datasetEntity.get());
         } catch (final Exception exception) {
             return new Type.ActionResult<>(false, "Neznáma chyba", null);
         }

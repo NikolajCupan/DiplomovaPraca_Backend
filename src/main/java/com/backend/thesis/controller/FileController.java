@@ -1,12 +1,13 @@
 package com.backend.thesis.controller;
 
 import com.backend.thesis.domain.dto.DatasetInfoDto;
+import com.backend.thesis.domain.entity.DatasetEntity;
 import com.backend.thesis.service.DatasetService;
 import com.backend.thesis.utility.Constants;
 import com.backend.thesis.utility.Helper;
 import com.backend.thesis.utility.Type;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.tuple.ImmutablePair;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,8 +40,7 @@ public class FileController {
             @RequestParam(name = "dateColumnName", required = false) final Optional<String> dateColumnName,
             @RequestParam(name = "dataColumnName", required = false) final Optional<String> dataColumnName,
             @RequestParam(name = "datasetHasDateColumn") final String datasetHasDateColumn,
-            @RequestParam(name = "datasetHasHeader") final String datasetHasHeader,
-            @RequestParam(name = "datasetHasMissingValues") final String datasetHasMissingValues
+            @RequestParam(name = "datasetHasHeader") final String datasetHasHeader
     ) {
         Type.ActionResult<DatasetInfoDto> result = this.datasetService.tryToSaveDataset(
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
@@ -51,8 +52,7 @@ public class FileController {
                 dateColumnName,
                 dataColumnName,
                 Helper.stringToBoolean(datasetHasDateColumn),
-                Helper.stringToBoolean(datasetHasHeader),
-                Helper.stringToBoolean(datasetHasMissingValues)
+                Helper.stringToBoolean(datasetHasHeader)
         );
 
         if (result.success()) {
@@ -62,25 +62,32 @@ public class FileController {
         }
     }
 
-    @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
+    @CrossOrigin(exposedHeaders = {Constants.SESSION_COOKIE_NAME, "dataset-name"})
     @PostMapping(path = "/dataset/download")
     public ResponseEntity<InputStreamResource> handleDatasetDownload(
             final HttpServletRequest request,
+            final HttpServletResponse response,
             @RequestParam(name = "idDataset") final String idDataset
     ) {
-        final Type.ActionResult<ImmutablePair<InputStreamResource, File>> result = this.datasetService.getDatasetOfUser(
+        final Type.ActionResult<DatasetEntity> result = this.datasetService.getDatasetOfUser(
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(), Helper.stringToLong(idDataset)
         );
 
         if (result.success()) {
-            final InputStreamResource resource = result.data().getLeft();
-            final File file = result.data().getRight();
+            try {
+                final File rawFile = new File(Constants.STORAGE_DATASET_PATH, result.data().getFileName() + ".csv");
+                final InputStreamResource resource = new InputStreamResource(new FileInputStream(rawFile));
 
-            return ResponseEntity
-                    .ok()
-                    .contentLength(file.length())
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(resource);
+                response.setHeader("dataset-name", result.data().getDatasetName());
+
+                return ResponseEntity
+                        .ok()
+                        .contentLength(rawFile.length())
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(resource);
+            } catch (final Exception exception) {
+                return ResponseEntity.badRequest().body(null);
+            }
         } else {
             return ResponseEntity.badRequest().body(null);
         }
