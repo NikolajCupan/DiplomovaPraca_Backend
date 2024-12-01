@@ -72,6 +72,10 @@ public class DatasetEntity {
         return this.datasetName;
     }
 
+    public String getColumnName() {
+        return this.columnName;
+    }
+
     public String getFileName() {
         return this.fileName;
     }

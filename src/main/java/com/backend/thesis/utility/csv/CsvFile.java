@@ -2,6 +2,7 @@ package com.backend.thesis.utility.csv;
 
 import com.backend.thesis.utility.Constants;
 import com.backend.thesis.utility.Helper;
+import com.backend.thesis.utility.Type;
 import com.backend.thesis.utility.other.RequestException;
 
 import java.io.*;
@@ -40,15 +41,9 @@ public class CsvFile {
         }
     }
 
-    private record Row(
-            LocalDateTime dateTime,
-            String value
-    ) {
-    }
-
     private String dateColumnName;
     private String dataColumnName;
-    private final List<Row> data;
+    private final List<Type.DatasetRow> data;
 
     public CsvFile() {
         this.dateColumnName = "";
@@ -63,7 +58,7 @@ public class CsvFile {
     }
 
     public void addRow(final LocalDateTime dateTime, final String value) {
-        this.data.add(new Row(dateTime, value));
+        this.data.add(new Type.DatasetRow(dateTime, value));
     }
 
     public void saveToFile(final String datasetName) throws RequestException {
@@ -72,8 +67,8 @@ public class CsvFile {
             writter.write(this.dateColumnName + Constants.CSV_DELIMITER + this.dataColumnName + "\n");
 
             for (int i = 0; i < this.data.size(); i++) {
-                final Row row = this.data.get(i);
-                writter.write(Helper.localDateTimeToString(row.dateTime) + Constants.CSV_DELIMITER + row.value);
+                final Type.DatasetRow datasetRow = this.data.get(i);
+                writter.write(Helper.localDateTimeToString(datasetRow.dateTime()) + Constants.CSV_DELIMITER + datasetRow.value());
 
                 if (i != this.data.size() - 1) {
                     writter.write("\n");
@@ -90,6 +85,10 @@ public class CsvFile {
 
     public LocalDateTime getEndDateTime() {
         return this.data.getLast().dateTime();
+    }
+
+    public List<Type.DatasetRow> getData() {
+        return this.data;
     }
 
     public void setDateColumnName(final String dateColumnName) {

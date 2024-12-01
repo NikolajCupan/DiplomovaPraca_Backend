@@ -3,6 +3,7 @@ package com.backend.thesis.domain.dto;
 public class DatasetInfoDto {
     private Long idDataset;
     private String datasetName;
+    private String columnName;
     private String frequencyType;
 
     public Long getIdDataset() {
@@ -11,6 +12,10 @@ public class DatasetInfoDto {
 
     public String getDatasetName() {
         return this.datasetName;
+    }
+
+    public void setColumnName(final String columnName) {
+        this.columnName = columnName;
     }
 
     public String getFrequencyType() {

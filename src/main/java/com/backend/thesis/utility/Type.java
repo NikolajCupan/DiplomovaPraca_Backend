@@ -1,5 +1,7 @@
 package com.backend.thesis.utility;
 
+import java.time.LocalDateTime;
+
 public class Type {
     public record ActionResult<T>(
             boolean success,
@@ -21,5 +23,11 @@ public class Type {
             this.message = message;
             this.data = data;
         }
+    }
+
+    public record DatasetRow(
+            LocalDateTime dateTime,
+            String value
+    ) {
     }
 }

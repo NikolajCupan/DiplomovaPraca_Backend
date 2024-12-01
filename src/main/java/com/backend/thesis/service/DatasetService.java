@@ -1,6 +1,7 @@
 package com.backend.thesis.service;
 
 import com.backend.thesis.domain.Mapper;
+import com.backend.thesis.domain.dto.DatasetForEditingDto;
 import com.backend.thesis.domain.dto.DatasetInfoDto;
 import com.backend.thesis.domain.dto.Frequency;
 import com.backend.thesis.domain.entity.DatasetEntity;
@@ -15,13 +16,9 @@ import com.backend.thesis.utility.Type;
 import com.backend.thesis.utility.csv.CsvFile;
 import com.backend.thesis.utility.csv.CsvParser;
 import com.backend.thesis.utility.other.RequestException;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -116,6 +113,22 @@ public class DatasetService {
             datasetInfoDtos.add(this.mapper.datasetEntityToDatasetInfoDto(datasetEntity));
         }
 
-        return new Type.ActionResult<>(true, "Datasety boli načítané", datasetInfoDtos);
+        return new Type.ActionResult<>(true, "Datasety boli odoslané", datasetInfoDtos);
+    }
+
+    public Type.ActionResult<DatasetForEditingDto> getDatasetOfUserForEditing(final String cookie, final Long idDataset) {
+        final Type.ActionResult<DatasetEntity> result = this.getDatasetOfUser(cookie, idDataset);
+
+        if (!result.success()) {
+            return new Type.ActionResult<>(false, result.message(), null);
+        }
+
+        try {
+            return new Type.ActionResult<>(
+                    true, "Dataset bol odoslaný na editáciu", this.mapper.datasetEntityToDatasetForEditingDto(result.data())
+            );
+        } catch (final RequestException exception) {
+            return new Type.ActionResult<>(false, result.message(), null);
+        }
     }
 }
