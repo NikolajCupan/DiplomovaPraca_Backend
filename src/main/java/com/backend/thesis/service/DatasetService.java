@@ -131,4 +131,30 @@ public class DatasetService {
             return new Type.ActionResult<>(false, result.message(), null);
         }
     }
+
+    public Type.ActionResult<DatasetForEditingDto> editDataset(final String cookie, final Long idDataset, List<Type.DatasetRow> rows) {
+        final Type.ActionResult<DatasetEntity> result = this.getDatasetOfUser(cookie, idDataset);
+        if (!result.success()) {
+            return new Type.ActionResult<>(false, result.message(), null);
+        }
+
+        try {
+            final CsvFile csvFile = CsvFile.readFromFile(result.data().getFileName());
+            for (final Type.DatasetRow editedRow : rows) {
+                csvFile.editRow(editedRow.dateTime(), editedRow.value());
+            }
+
+            csvFile.trim();
+            csvFile.saveToFile(result.data().getFileName());
+
+            final Type.ActionResult<DatasetForEditingDto> updatedDatasetForEditing = this.getDatasetOfUserForEditing(cookie, idDataset);
+            if (updatedDatasetForEditing.success()) {
+                return new Type.ActionResult<>(true, "Dataset bol úspešne editovaný", null);
+            } else {
+                return new Type.ActionResult<>(false, result.message(), null);
+            }
+        } catch (final RequestException exception) {
+            return new Type.ActionResult<>(false, exception.getMessage(), null);
+        }
+    }
 }

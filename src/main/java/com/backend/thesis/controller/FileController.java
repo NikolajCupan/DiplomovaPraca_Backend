@@ -127,4 +127,24 @@ public class FileController {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
+    @PostMapping(path = "/dataset/edit")
+    public ResponseEntity<Type.RequestResult<DatasetForEditingDto>> handleDatasetEdit(
+            final HttpServletRequest request,
+            @RequestParam(name = "idDataset") final String idDataset,
+            @RequestParam(name = "rows") final String rawRows
+    ) {
+        final Type.ActionResult<DatasetForEditingDto> result = this.datasetService.editDataset(
+                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                Helper.stringToLong(idDataset),
+                Helper.rawRowsToRows(rawRows)
+        );
+
+        if (result.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+        }
+    }
 }

@@ -14,6 +14,10 @@ public class DatasetInfoDto {
         return this.datasetName;
     }
 
+    public String getColumnName() {
+        return this.columnName;
+    }
+
     public void setColumnName(final String columnName) {
         this.columnName = columnName;
     }

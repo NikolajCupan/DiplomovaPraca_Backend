@@ -198,6 +198,7 @@ public class CsvParser {
             parsedCsv.addRow(dateColumn.get(i), dataColumn.get(i));
         }
 
+        parsedCsv.trim();
         return parsedCsv;
     }
 }

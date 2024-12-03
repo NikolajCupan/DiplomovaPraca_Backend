@@ -14,4 +14,5 @@ public class Constants {
     public static final String STORAGE_DATASET_PATH = "storage/dataset";
 
     public static final String CSV_DELIMITER = ",";
+    public static final String EMPTY_VALUE = "-";
 }

@@ -1,11 +1,15 @@
 package com.backend.thesis.utility;
 
 import com.backend.thesis.domain.dto.Frequency;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.UUID;
+import java.util.List;
 
 public class Helper {
     private Helper() {
@@ -94,6 +98,26 @@ public class Helper {
             return true;
         } catch (final Exception exception) {
             return false;
+        }
+    }
+
+    public static List<Type.DatasetRow> rawRowsToRows(final String rawRows) {
+        final List<Type.DatasetRow> parsedRows = new ArrayList<>();
+
+        try {
+            final JSONArray json = new JSONArray(rawRows);
+            for (int i = 0; i < json.length(); ++i) {
+                final JSONObject row = json.getJSONObject(i);
+
+                final LocalDateTime dateTime = Helper.stringToLocalDateTime(row.get("date").toString());
+                final String valueString = row.get("value").toString().equals(Constants.EMPTY_VALUE) ? "" : row.get("value").toString();
+
+                parsedRows.add(new Type.DatasetRow(dateTime, valueString));
+            }
+
+            return parsedRows;
+        } catch (final Exception exception) {
+            return parsedRows;
         }
     }
 }

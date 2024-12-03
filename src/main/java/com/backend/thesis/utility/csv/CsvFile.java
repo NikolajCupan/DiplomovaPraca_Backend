@@ -57,8 +57,41 @@ public class CsvFile {
         this.data = new ArrayList<>();
     }
 
+    public void trim() throws RequestException {
+        while (true) {
+            if (this.data.isEmpty()) {
+                throw new RequestException("Dataset po orezaní neobsahuje žiadne údaje");
+            } else if (this.data.getFirst().value().isEmpty()) {
+                this.data.removeFirst();
+            } else {
+                break;
+            }
+        }
+
+        while (true) {
+            if (this.data.isEmpty()) {
+                throw new RequestException("Dataset po orezaní neobsahuje žiadne údaje");
+            } else if (this.data.getLast().value().isEmpty()) {
+                this.data.removeLast();
+            } else {
+                break;
+            }
+        }
+    }
+
     public void addRow(final LocalDateTime dateTime, final String value) {
         this.data.add(new Type.DatasetRow(dateTime, value));
+    }
+
+    public void editRow(final LocalDateTime dateTime, final String newValue) throws RequestException {
+        for (int i = 0; i < this.data.size(); ++i) {
+            if (this.data.get(i).dateTime().isEqual(dateTime)) {
+                this.data.set(i, new Type.DatasetRow(dateTime, newValue));
+                return;
+            }
+        }
+
+        throw new RequestException("Riadok s daným dátumom neexistuje");
     }
 
     public void saveToFile(final String datasetName) throws RequestException {
