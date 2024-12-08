@@ -3,5 +3,5 @@ VALUES ('hourly'),
        ('daily'),
        ('weekly'),
        ('monthly'),
-       ('quaterly'),
+       ('quarterly'),
        ('yearly');

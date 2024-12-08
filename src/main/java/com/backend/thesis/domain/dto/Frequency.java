@@ -5,7 +5,7 @@ public enum Frequency {
     DAILY("daily"),
     WEEKLY("weekly"),
     MONTHLY("monthly"),
-    QUATERLY("quaterly"),
+    QUARTERLY("quarterly"),
     YEARLY("yearly");
 
     public final String label;

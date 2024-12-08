@@ -1,7 +1,7 @@
 package com.backend.thesis.service;
 
 import com.backend.thesis.domain.entity.UserEntity;
-import com.backend.thesis.domain.repository.IUserRepository;
+import com.backend.thesis.domain.repository.UserRepository;
 import com.backend.thesis.utility.Constants;
 import com.backend.thesis.utility.Helper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
-    private final IUserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public UserService(final IUserRepository userRepository) {
+    public UserService(final UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

@@ -4,6 +4,7 @@ public class DatasetInfoDto {
     private Long idDataset;
     private String datasetName;
     private String columnName;
+    private Long rowsCount;
     private String frequencyType;
 
     public Long getIdDataset() {
@@ -16,6 +17,10 @@ public class DatasetInfoDto {
 
     public String getColumnName() {
         return this.columnName;
+    }
+
+    public Long getRowsCount() {
+        return this.rowsCount;
     }
 
     public void setColumnName(final String columnName) {
@@ -32,6 +37,10 @@ public class DatasetInfoDto {
 
     public void setDatasetName(final String datasetName) {
         this.datasetName = datasetName;
+    }
+
+    public void setRowsCount(final Long rowsCount) {
+        this.rowsCount = rowsCount;
     }
 
     public void setFrequencyType(final String frequencyType) {

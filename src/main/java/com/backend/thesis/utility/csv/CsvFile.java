@@ -1,5 +1,6 @@
 package com.backend.thesis.utility.csv;
 
+import com.backend.thesis.domain.dto.Frequency;
 import com.backend.thesis.utility.Constants;
 import com.backend.thesis.utility.Helper;
 import com.backend.thesis.utility.Type;
@@ -7,8 +8,7 @@ import com.backend.thesis.utility.other.RequestException;
 
 import java.io.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class CsvFile {
     public static CsvFile readFromFile(final String fileName) throws RequestException {
@@ -17,6 +17,7 @@ public class CsvFile {
 
         try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
             final String[] header = reader.readLine().split(Constants.CSV_DELIMITER);
+            csvFile.setFileName(fileName);
             csvFile.setDateColumnName(header[0]);
             csvFile.setDataColumnName(header[1]);
 
@@ -41,23 +42,36 @@ public class CsvFile {
         }
     }
 
+    public static void deleteFile(final String fileName) throws RequestException {
+        final File file = new File(Constants.STORAGE_DATASET_PATH, fileName + ".csv");
+
+        if (!file.delete()) {
+            throw new RequestException("Súbor nebol zmazaný");
+        }
+    }
+
+    private String fileName;
     private String dateColumnName;
     private String dataColumnName;
     private final List<Type.DatasetRow> data;
 
     public CsvFile() {
+        this.fileName = "";
         this.dateColumnName = "";
         this.dataColumnName = "";
         this.data = new ArrayList<>();
     }
 
-    public CsvFile(final String dateColumnName, final String dataColumnName) {
+    public CsvFile(final String fileName, final String dateColumnName, final String dataColumnName) {
+        this.fileName = fileName;
         this.dateColumnName = dateColumnName;
         this.dataColumnName = dataColumnName;
         this.data = new ArrayList<>();
     }
 
-    public void trim() throws RequestException {
+    public boolean trim() throws RequestException {
+        final Long originalCount = this.getRowsCount();
+
         while (true) {
             if (this.data.isEmpty()) {
                 throw new RequestException("Dataset po orezaní neobsahuje žiadne údaje");
@@ -77,25 +91,71 @@ public class CsvFile {
                 break;
             }
         }
+
+        final Long modifiedCount = this.getRowsCount();
+        return !Objects.equals(originalCount, modifiedCount);
+    }
+
+    public Optional<Integer> getRowIndex(final LocalDateTime dateTime) {
+        for (int i = 0; i < this.data.size(); ++i) {
+            if (this.data.get(i).dateTime().isEqual(dateTime)) {
+                return Optional.of(i);
+            }
+        }
+
+        return Optional.empty();
     }
 
     public void addRow(final LocalDateTime dateTime, final String value) {
         this.data.add(new Type.DatasetRow(dateTime, value));
     }
 
-    public void editRow(final LocalDateTime dateTime, final String newValue) throws RequestException {
-        for (int i = 0; i < this.data.size(); ++i) {
-            if (this.data.get(i).dateTime().isEqual(dateTime)) {
-                this.data.set(i, new Type.DatasetRow(dateTime, newValue));
-                return;
-            }
+    public void editRow(final LocalDateTime dateTime, final String newValue, final Frequency frequency) throws RequestException {
+        final Optional<Integer> rowIndex = this.getRowIndex(dateTime);
+        if (rowIndex.isPresent()) {
+            this.data.set(rowIndex.get(), new Type.DatasetRow(dateTime, newValue));
+            return;
         }
 
-        throw new RequestException("Riadok s daným dátumom neexistuje");
+        final LocalDateTime originalFirstDateTime = this.data.getFirst().dateTime();
+        if (dateTime.isBefore(originalFirstDateTime)) {
+            Collections.reverse(this.data);
+
+            LocalDateTime activeFirstDateTime = originalFirstDateTime;
+            while (true) {
+                activeFirstDateTime = Helper.getPreviousDate(activeFirstDateTime, frequency);
+
+                if (activeFirstDateTime.isEqual(dateTime)) {
+                    this.data.add(new Type.DatasetRow(activeFirstDateTime, newValue));
+                    break;
+                } else {
+                    this.data.add(new Type.DatasetRow(activeFirstDateTime, ""));
+                }
+            }
+
+            Collections.reverse(this.data);
+            return;
+        }
+
+        final LocalDateTime originalLastDateTime = this.data.getLast().dateTime();
+        if (dateTime.isAfter(originalLastDateTime)) {
+            LocalDateTime activeLastDateTime = originalLastDateTime;
+
+            while (true) {
+                activeLastDateTime = Helper.getNextDate(activeLastDateTime, frequency);
+
+                if (activeLastDateTime.isEqual(dateTime)) {
+                    this.data.add(new Type.DatasetRow(activeLastDateTime, newValue));
+                    break;
+                } else {
+                    this.data.add(new Type.DatasetRow(activeLastDateTime, ""));
+                }
+            }
+        }
     }
 
-    public void saveToFile(final String datasetName) throws RequestException {
-        final File file = new File(Constants.STORAGE_DATASET_PATH, datasetName + ".csv");
+    public void saveToFile() throws RequestException {
+        final File file = new File(Constants.STORAGE_DATASET_PATH, this.fileName + ".csv");
         try (final BufferedWriter writter = new BufferedWriter(new FileWriter(file))) {
             writter.write(this.dateColumnName + Constants.CSV_DELIMITER + this.dataColumnName + "\n");
 
@@ -122,6 +182,14 @@ public class CsvFile {
 
     public List<Type.DatasetRow> getData() {
         return this.data;
+    }
+
+    public Long getRowsCount() {
+        return Helper.intToLong(this.data.size());
+    }
+
+    public void setFileName(final String fileName) {
+        this.fileName = fileName;
     }
 
     public void setDateColumnName(final String dateColumnName) {

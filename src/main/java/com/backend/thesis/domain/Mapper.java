@@ -4,9 +4,9 @@ import com.backend.thesis.domain.dto.DatasetForEditingDto;
 import com.backend.thesis.domain.dto.DatasetInfoDto;
 import com.backend.thesis.domain.entity.DatasetEntity;
 import com.backend.thesis.domain.entity.FrequencyEntity;
-import com.backend.thesis.domain.repository.IDatasetRepository;
-import com.backend.thesis.domain.repository.IFrequencyRepository;
-import com.backend.thesis.domain.repository.IUserRepository;
+import com.backend.thesis.domain.repository.DatasetRepository;
+import com.backend.thesis.domain.repository.FrequencyRepository;
+import com.backend.thesis.domain.repository.UserRepository;
 import com.backend.thesis.utility.csv.CsvFile;
 import com.backend.thesis.utility.other.RequestException;
 import org.springframework.stereotype.Component;
@@ -15,11 +15,11 @@ import java.util.Optional;
 
 @Component
 public class Mapper {
-    private final IUserRepository userRepository;
-    private final IDatasetRepository datasetRepository;
-    private final IFrequencyRepository frequencyRepository;
+    private final UserRepository userRepository;
+    private final DatasetRepository datasetRepository;
+    private final FrequencyRepository frequencyRepository;
 
-    public Mapper(final IUserRepository userRepository, final IDatasetRepository datasetRepository, final IFrequencyRepository frequencyRepository) {
+    public Mapper(final UserRepository userRepository, final DatasetRepository datasetRepository, final FrequencyRepository frequencyRepository) {
         this.userRepository = userRepository;
         this.datasetRepository = datasetRepository;
         this.frequencyRepository = frequencyRepository;
@@ -30,6 +30,7 @@ public class Mapper {
         datasetInfoDto.setIdDataset(datasetEntity.getIdDataset());
         datasetInfoDto.setColumnName(datasetEntity.getColumnName());
         datasetInfoDto.setDatasetName(datasetEntity.getDatasetName());
+        datasetInfoDto.setRowsCount(datasetEntity.getRowsCount());
 
         final Optional<FrequencyEntity> frequencyEntity = this.frequencyRepository.findById(datasetEntity.getIdFrequency());
         assert (frequencyEntity.isPresent());

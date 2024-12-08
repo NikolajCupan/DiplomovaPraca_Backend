@@ -61,6 +61,10 @@ public class Helper {
         return Long.parseLong(string);
     }
 
+    public static Long intToLong(final Integer integer) {
+        return Long.valueOf(integer);
+    }
+
     public static boolean stringToBoolean(final String stringBoolean) {
         return Boolean.parseBoolean(stringBoolean);
     }
@@ -86,7 +90,7 @@ public class Helper {
             case "daily" -> Frequency.DAILY;
             case "weekly" -> Frequency.WEEKLY;
             case "monthly" -> Frequency.MONTHLY;
-            case "quarterly" -> Frequency.QUATERLY;
+            case "quarterly" -> Frequency.QUARTERLY;
             case "yearly" -> Frequency.YEARLY;
             default -> throw new IllegalArgumentException("Invalid string frequency " + stringFrequency);
         };
@@ -119,5 +123,27 @@ public class Helper {
         } catch (final Exception exception) {
             return parsedRows;
         }
+    }
+
+    public static LocalDateTime getNextDate(final LocalDateTime previousDateTime, final Frequency frequency) {
+        return switch (frequency) {
+            case Frequency.HOURLY -> previousDateTime.plusHours(1);
+            case Frequency.DAILY -> previousDateTime.plusDays(1);
+            case Frequency.WEEKLY -> previousDateTime.plusWeeks(1);
+            case Frequency.MONTHLY -> previousDateTime.plusMonths(1);
+            case Frequency.QUARTERLY -> previousDateTime.plusMonths(3);
+            case Frequency.YEARLY -> previousDateTime.plusYears(1);
+        };
+    }
+
+    public static LocalDateTime getPreviousDate(final LocalDateTime currentDateTime, final Frequency frequency) {
+        return switch (frequency) {
+            case Frequency.HOURLY -> currentDateTime.minusHours(1);
+            case Frequency.DAILY -> currentDateTime.minusDays(1);
+            case Frequency.WEEKLY -> currentDateTime.minusWeeks(1);
+            case Frequency.MONTHLY -> currentDateTime.minusMonths(1);
+            case Frequency.QUARTERLY -> currentDateTime.minusMonths(3);
+            case Frequency.YEARLY -> currentDateTime.minusYears(1);
+        };
     }
 }

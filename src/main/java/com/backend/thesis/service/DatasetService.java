@@ -7,9 +7,9 @@ import com.backend.thesis.domain.dto.Frequency;
 import com.backend.thesis.domain.entity.DatasetEntity;
 import com.backend.thesis.domain.entity.FrequencyEntity;
 import com.backend.thesis.domain.entity.UserEntity;
-import com.backend.thesis.domain.repository.IDatasetRepository;
-import com.backend.thesis.domain.repository.IFrequencyRepository;
-import com.backend.thesis.domain.repository.IUserRepository;
+import com.backend.thesis.domain.repository.DatasetRepository;
+import com.backend.thesis.domain.repository.FrequencyRepository;
+import com.backend.thesis.domain.repository.UserRepository;
 import com.backend.thesis.utility.Constants;
 import com.backend.thesis.utility.Helper;
 import com.backend.thesis.utility.Type;
@@ -27,11 +27,11 @@ import java.util.Optional;
 @Service
 public class DatasetService {
     private final Mapper mapper;
-    private final IDatasetRepository datasetRepository;
-    private final IUserRepository userRepository;
-    private final IFrequencyRepository frequencyRepository;
+    private final DatasetRepository datasetRepository;
+    private final UserRepository userRepository;
+    private final FrequencyRepository frequencyRepository;
 
-    public DatasetService(final Mapper mapper, final IDatasetRepository datasetRepository, final IUserRepository userRepository, final IFrequencyRepository frequencyRepository) {
+    public DatasetService(final Mapper mapper, final DatasetRepository datasetRepository, final UserRepository userRepository, final FrequencyRepository frequencyRepository) {
         this.mapper = mapper;
         this.datasetRepository = datasetRepository;
         this.userRepository = userRepository;
@@ -51,13 +51,14 @@ public class DatasetService {
             final boolean datasetHasHeader
     ) {
         try {
-            final CsvFile csv = CsvParser.parseCsv(
-                    file, startDateTime, dateFormat, frequency, dateColumnName, dataColumnName, datasetHasDateColumn, datasetHasHeader
-            );
-
             final String finalDatasetName = datasetName.isEmpty() ? Constants.DEFAULT_DATESET_NAME : datasetName;
             final String fileName = finalDatasetName + Helper.getUniqueID();
-            csv.saveToFile(fileName);
+
+            final CsvFile csv = CsvParser.parseCsv(
+                    file, startDateTime, dateFormat, frequency, fileName, dateColumnName, dataColumnName, datasetHasDateColumn, datasetHasHeader
+            );
+
+            csv.saveToFile();
 
             final UserEntity userEntity = this.userRepository.findByCookie(cookie);
             final FrequencyEntity frequencyEntity = this.frequencyRepository.findByFrequencyType(frequency.toString());
@@ -67,6 +68,7 @@ public class DatasetService {
                     frequencyEntity.getIdFrequency(),
                     finalDatasetName,
                     (dataColumnName.isEmpty() || dataColumnName.get().isEmpty()) ? Constants.DEFAULT_DATA_COLUMN_NAME : dataColumnName.get(),
+                    csv.getRowsCount(),
                     fileName,
                     csv.getStartDateTime(),
                     csv.getEndDateTime()
@@ -95,7 +97,7 @@ public class DatasetService {
             }
 
             if (!userEntity.get().getCookie().equals(cookie)) {
-                return new Type.ActionResult<>(false, "Používateľ nemá oprávnenie na stiahnutie daného súboru", null);
+                return new Type.ActionResult<>(false, "Používateľ nemá oprávnenie na prístup k danému súboru", null);
             }
 
             return new Type.ActionResult<>(true, "Dataset bol odoslaný", datasetEntity.get());
@@ -132,21 +134,34 @@ public class DatasetService {
         }
     }
 
-    public Type.ActionResult<DatasetForEditingDto> editDataset(final String cookie, final Long idDataset, List<Type.DatasetRow> rows) {
+    public Type.ActionResult<DatasetForEditingDto> editDataset(
+            final String cookie,
+            final Long idDataset,
+            final Optional<String> newColumnName,
+            final List<Type.DatasetRow> rows
+    ) {
         final Type.ActionResult<DatasetEntity> result = this.getDatasetOfUser(cookie, idDataset);
         if (!result.success()) {
             return new Type.ActionResult<>(false, result.message(), null);
         }
 
         try {
+            final DatasetEntity datasetEntity = this.datasetRepository.findById(idDataset).get();
+            final FrequencyEntity frequencyEntity = this.frequencyRepository.findById(datasetEntity.getIdFrequency()).get();
+
             final CsvFile csvFile = CsvFile.readFromFile(result.data().getFileName());
             for (final Type.DatasetRow editedRow : rows) {
-                csvFile.editRow(editedRow.dateTime(), editedRow.value());
+                csvFile.editRow(editedRow.dateTime(), editedRow.value(), Helper.stringToFrequency(frequencyEntity.getFrequencyType()));
+            }
+            csvFile.trim();
+            datasetEntity.setRowsCount(csvFile.getRowsCount());
+            csvFile.saveToFile();
+
+            if (newColumnName.isPresent() && !newColumnName.get().isEmpty()) {
+                datasetEntity.setColumnName(newColumnName.get());
             }
 
-            csvFile.trim();
-            csvFile.saveToFile(result.data().getFileName());
-
+            this.datasetRepository.save(datasetEntity);
             final Type.ActionResult<DatasetForEditingDto> updatedDatasetForEditing = this.getDatasetOfUserForEditing(cookie, idDataset);
             if (updatedDatasetForEditing.success()) {
                 return new Type.ActionResult<>(true, "Dataset bol úspešne editovaný", null);
@@ -155,6 +170,22 @@ public class DatasetService {
             }
         } catch (final RequestException exception) {
             return new Type.ActionResult<>(false, exception.getMessage(), null);
+        }
+    }
+
+    public Type.ActionResult<DatasetInfoDto> deleteDataset(final String cookie, final Long idDataset) {
+        final Type.ActionResult<DatasetEntity> result = this.getDatasetOfUser(cookie, idDataset);
+        if (!result.success()) {
+            return new Type.ActionResult<>(false, result.message(), null);
+        }
+
+        try {
+            this.datasetRepository.deleteByIdDataset(idDataset);
+
+            final DatasetInfoDto datasetInfoDto = this.mapper.datasetEntityToDatasetInfoDto(result.data());
+            return new Type.ActionResult<>(true, "Dataset bol úspešne zmazaný", datasetInfoDto);
+        } catch (final RequestException exception) {
+            return new Type.ActionResult<>(false, result.message(), null);
         }
     }
 }

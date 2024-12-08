@@ -133,12 +133,32 @@ public class FileController {
     public ResponseEntity<Type.RequestResult<DatasetForEditingDto>> handleDatasetEdit(
             final HttpServletRequest request,
             @RequestParam(name = "idDataset") final String idDataset,
+            @RequestParam(name = "newColumnName") final Optional<String> newColumnName,
             @RequestParam(name = "rows") final String rawRows
     ) {
         final Type.ActionResult<DatasetForEditingDto> result = this.datasetService.editDataset(
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
                 Helper.stringToLong(idDataset),
+                newColumnName,
                 Helper.rawRowsToRows(rawRows)
+        );
+
+        if (result.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
+    @DeleteMapping(path = "/dataset/delete")
+    public ResponseEntity<Type.RequestResult<DatasetInfoDto>> handleDatasetDelete(
+            final HttpServletRequest request,
+            @RequestParam(name = "idDataset") final String idDataset
+    ) {
+        final Type.ActionResult<DatasetInfoDto> result = this.datasetService.deleteDataset(
+                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                Helper.stringToLong(idDataset)
         );
 
         if (result.success()) {

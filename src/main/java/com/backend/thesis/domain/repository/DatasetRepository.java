@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface IDatasetRepository extends CrudRepository<DatasetEntity, Long> {
+public interface DatasetRepository extends CrudRepository<DatasetEntity, Long>, DatasetRepositoryCustom {
     @Query(nativeQuery = true, value = "SELECT * FROM dataset a WHERE a.id_user = ?1")
     List<DatasetEntity> findByIdUser(final Long idUser);
 }

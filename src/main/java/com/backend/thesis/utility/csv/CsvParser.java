@@ -45,7 +45,7 @@ public class CsvParser {
 
             for (final String rawDate : rawDateColumn) {
                 final LocalDateTime extractedDate = CsvParser.truncateDate(Helper.stringToLocalDateTime(rawDate, dateFormat), frequency);
-                final LocalDateTime expectedDate = CsvParser.getNextDate(dateColumn.getLast(), frequency);
+                final LocalDateTime expectedDate = Helper.getNextDate(dateColumn.getLast(), frequency);
 
                 if (!extractedDate.isEqual(expectedDate)) {
                     throw new RequestException("Chyba pri spracovaní stĺpca s dátumom (nesprávne nastavená frekvencia)");
@@ -83,7 +83,7 @@ public class CsvParser {
             return startDateTime.truncatedTo(ChronoUnit.DAYS);
         } else if (frequency == Frequency.MONTHLY) {
             return LocalDate.of(startDateTime.getYear(), startDateTime.getMonth(), 1).atStartOfDay();
-        } else if (frequency == Frequency.QUATERLY) {
+        } else if (frequency == Frequency.QUARTERLY) {
             switch (startDateTime.getMonth()) {
                 case Month.JANUARY, Month.FEBRUARY, Month.MARCH -> {
                     return LocalDate.of(startDateTime.getYear(), 1, 1).atStartOfDay();
@@ -105,24 +105,6 @@ public class CsvParser {
         return null;
     }
 
-    private static LocalDateTime getNextDate(final LocalDateTime previousDateTime, final Frequency frequency) {
-        if (frequency == Frequency.HOURLY) {
-            return previousDateTime.plusHours(1);
-        } else if (frequency == Frequency.DAILY) {
-            return previousDateTime.plusDays(1);
-        } else if (frequency == Frequency.WEEKLY) {
-            return previousDateTime.plusWeeks(1);
-        } else if (frequency == Frequency.MONTHLY) {
-            return previousDateTime.plusMonths(1);
-        } else if (frequency == Frequency.QUATERLY) {
-            return previousDateTime.plusMonths(3);
-        } else if (frequency == Frequency.YEARLY) {
-            return previousDateTime.plusYears(1);
-        }
-
-        return null;
-    }
-
     private static List<LocalDateTime> generateDateColumn(
             final LocalDateTime startDateTime,
             final Frequency frequency,
@@ -133,7 +115,7 @@ public class CsvParser {
         dateColumn.set(0, startDate);
 
         for (int i = 1; i < length; ++i) {
-            dateColumn.set(i, CsvParser.getNextDate(dateColumn.get(i - 1), frequency));
+            dateColumn.set(i, Helper.getNextDate(dateColumn.get(i - 1), frequency));
         }
 
         return dateColumn;
@@ -144,6 +126,7 @@ public class CsvParser {
             final Optional<LocalDateTime> startDateTime,
             final Optional<String> dateFormat,
             final Frequency frequency,
+            final String fileName,
             final Optional<String> dateColumnName,
             final Optional<String> dataColumnName,
             final boolean datasetHasDateColumn,
@@ -156,6 +139,7 @@ public class CsvParser {
 
         final List<String[]> rawCsv = CsvParser.readCsv(file);
         final CsvFile parsedCsv = new CsvFile(
+                fileName,
                 dateColumnName.isPresent() && !dateColumnName.get().isEmpty() ? dateColumnName.get() : Constants.DEFAULT_DATE_COLUMN_NAME,
                 dataColumnName.isPresent() && !dataColumnName.get().isEmpty() ? dataColumnName.get() : Constants.DEFAULT_DATA_COLUMN_NAME
         );

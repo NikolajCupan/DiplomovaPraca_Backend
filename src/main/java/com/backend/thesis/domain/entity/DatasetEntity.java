@@ -26,6 +26,9 @@ public class DatasetEntity {
     @Column(name = "column_name", nullable = false)
     private String columnName;
 
+    @Column(name = "rows_count", nullable = false)
+    private Long rowsCount;
+
     @Column(name = "file_name", nullable = false, unique = true)
     private String fileName;
 
@@ -43,6 +46,7 @@ public class DatasetEntity {
             final Long idFrequency,
             final String datasetName,
             final String columnName,
+            final Long rowsCount,
             final String fileName,
             final LocalDateTime startAt,
             final LocalDateTime endAt
@@ -51,6 +55,7 @@ public class DatasetEntity {
         this.idFrequency = idFrequency;
         this.datasetName = datasetName;
         this.columnName = columnName;
+        this.rowsCount = rowsCount;
         this.fileName = fileName;
         this.startAt = startAt;
         this.endAt = endAt;
@@ -76,7 +81,19 @@ public class DatasetEntity {
         return this.columnName;
     }
 
+    public Long getRowsCount() {
+        return this.rowsCount;
+    }
+
     public String getFileName() {
         return this.fileName;
+    }
+
+    public void setColumnName(final String columnName) {
+        this.columnName = columnName;
+    }
+
+    public void setRowsCount(final Long rowsCount) {
+        this.rowsCount = rowsCount;
     }
 }
