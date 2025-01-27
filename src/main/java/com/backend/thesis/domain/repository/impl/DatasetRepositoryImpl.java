@@ -25,13 +25,16 @@ public class DatasetRepositoryImpl implements DatasetRepositoryCustom {
     @Transactional
     @Override
     public void deleteByIdDataset(final Long idDataset) throws RequestException {
-        System.out.println("hi");
         final Optional<DatasetEntity> datasetEntity = this.datasetRepository.findById(idDataset);
         if (datasetEntity.isEmpty()) {
             throw new RequestException("Dataset s daným ID neexistuje");
         }
 
-        CsvFile.deleteFile(datasetEntity.get().getFileName());
+        try {
+            CsvFile.deleteFile(datasetEntity.get().getFileName());
+        } catch (final Exception ignore) {
+        }
+
         this.entityManager.remove(datasetEntity.get());
     }
 }

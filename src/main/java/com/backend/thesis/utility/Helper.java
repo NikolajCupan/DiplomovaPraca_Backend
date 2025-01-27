@@ -57,6 +57,10 @@ public class Helper {
         return dateTime.format(formatter);
     }
 
+    public static String trimTrailingZeroes(final String string) {
+        return !string.contains(".") ? string : string.replaceAll("0*$", "").replaceAll("\\.$", "");
+    }
+
     public static Long stringToLong(final String string) {
         return Long.parseLong(string);
     }

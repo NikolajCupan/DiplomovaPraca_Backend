@@ -130,7 +130,7 @@ public class DatasetService {
                     true, "Dataset bol odoslaný na editáciu", this.mapper.datasetEntityToDatasetForEditingDto(result.data())
             );
         } catch (final RequestException exception) {
-            return new Type.ActionResult<>(false, result.message(), null);
+            return new Type.ActionResult<>(false, exception.getMessage(), null);
         }
     }
 

@@ -157,8 +157,6 @@ public class CsvFile {
     public void saveToFile() throws RequestException {
         final File file = new File(Constants.STORAGE_DATASET_PATH, this.fileName + ".csv");
         try (final BufferedWriter writter = new BufferedWriter(new FileWriter(file))) {
-            writter.write(this.dateColumnName + Constants.CSV_DELIMITER + this.dataColumnName + "\n");
-
             for (int i = 0; i < this.data.size(); i++) {
                 final Type.DatasetRow datasetRow = this.data.get(i);
                 writter.write(Helper.localDateTimeToString(datasetRow.dateTime()) + Constants.CSV_DELIMITER + datasetRow.value());

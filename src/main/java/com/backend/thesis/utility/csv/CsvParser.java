@@ -55,6 +55,8 @@ public class CsvParser {
             }
 
             return dateColumn;
+        } catch (final IllegalArgumentException exception) {
+            throw new RequestException("Chyba pri spracovaní stĺpca s dátumom (nesprávne nastavený formát dátumu)");
         } catch (final Exception exception) {
             throw new RequestException("Chyba pri spracovaní stĺpca s dátumom");
         }
@@ -69,7 +71,7 @@ public class CsvParser {
             if (numeric && !Helper.stringIsNumeric(value)) {
                 column.add("");
             } else {
-                column.add(value);
+                column.add(Helper.trimTrailingZeroes(value));
             }
         }
 
