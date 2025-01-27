@@ -13,14 +13,9 @@ import java.util.*;
 public class CsvFile {
     public static CsvFile readFromFile(final String fileName) throws RequestException {
         final File file = new File(Constants.STORAGE_DATASET_PATH, fileName + ".csv");
-        CsvFile csvFile = new CsvFile();
+        CsvFile csvFile = new CsvFile(fileName);
 
         try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            final String[] header = reader.readLine().split(Constants.CSV_DELIMITER);
-            csvFile.setFileName(fileName);
-            csvFile.setDateColumnName(header[0]);
-            csvFile.setDataColumnName(header[1]);
-
             while (true) {
                 final String row = reader.readLine();
                 if (row == null) {
@@ -51,21 +46,10 @@ public class CsvFile {
     }
 
     private String fileName;
-    private String dateColumnName;
-    private String dataColumnName;
     private final List<Type.DatasetRow> data;
 
-    public CsvFile() {
-        this.fileName = "";
-        this.dateColumnName = "";
-        this.dataColumnName = "";
-        this.data = new ArrayList<>();
-    }
-
-    public CsvFile(final String fileName, final String dateColumnName, final String dataColumnName) {
+    public CsvFile(final String fileName) {
         this.fileName = fileName;
-        this.dateColumnName = dateColumnName;
-        this.dataColumnName = dataColumnName;
         this.data = new ArrayList<>();
     }
 
@@ -184,17 +168,5 @@ public class CsvFile {
 
     public Long getRowsCount() {
         return Helper.intToLong(this.data.size());
-    }
-
-    public void setFileName(final String fileName) {
-        this.fileName = fileName;
-    }
-
-    public void setDateColumnName(final String dateColumnName) {
-        this.dateColumnName = dateColumnName;
-    }
-
-    public void setDataColumnName(final String dataColumnName) {
-        this.dataColumnName = dataColumnName;
     }
 }

@@ -141,9 +141,7 @@ public class CsvParser {
 
         final List<String[]> rawCsv = CsvParser.readCsv(file);
         final CsvFile parsedCsv = new CsvFile(
-                fileName,
-                dateColumnName.isPresent() && !dateColumnName.get().isEmpty() ? dateColumnName.get() : Constants.DEFAULT_DATE_COLUMN_NAME,
-                dataColumnName.isPresent() && !dataColumnName.get().isEmpty() ? dataColumnName.get() : Constants.DEFAULT_DATA_COLUMN_NAME
+                fileName
         );
 
         int indexDateColumn = 0;
