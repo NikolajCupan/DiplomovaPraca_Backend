@@ -65,6 +65,10 @@ public class Helper {
         return Long.parseLong(string);
     }
 
+    public static Double stringToDouble(final String string) {
+        return Double.parseDouble(string);
+    }
+
     public static Long intToLong(final Integer integer) {
         return Long.valueOf(integer);
     }
