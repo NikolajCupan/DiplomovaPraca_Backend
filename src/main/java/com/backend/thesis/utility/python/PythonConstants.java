@@ -7,7 +7,7 @@ public class PythonConstants {
     public static final int PYTHON_TIMEOUT_MS = 5_000;
     public static final boolean PYTHON_ENABLE_PRINTING = true;
 
-    public static final String PYTHON_BASE_DIRECTORY_PATH = "python";
+    public static final String PYTHON_BASE_DIRECTORY_PATH = "python_backend";
     public static final String PYTHON_MAIN_SCRIPT_NAME = "Main.py";
 
     public static final String DATASET_INPUT_PATH = "storage/python/input";

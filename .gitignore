@@ -37,5 +37,4 @@ build/
 learning/
 storage/
 secret.properties
-python/
-python
+python_backend
