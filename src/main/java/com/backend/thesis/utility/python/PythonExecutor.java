@@ -39,7 +39,10 @@ public class PythonExecutor {
         try {
             final Path inputJsonFilePath = Paths.get(PythonConstants.DATASET_INPUT_PATH + "/" + jsonFileName);
             Files.delete(inputJsonFilePath);
+        } catch (final Exception ignore) {
+        }
 
+        try {
             final Path outputJsonFilePath = Paths.get(PythonConstants.DATASET_OUTPUT_PATH + "/" + jsonFileName);
             Files.delete(outputJsonFilePath);
         } catch (final Exception ignore) {
@@ -47,6 +50,8 @@ public class PythonExecutor {
     }
 
     public static boolean executeAction(final String jsonFileName) {
+        boolean success = true;
+
         try {
             final ProcessBuilder processBuilder = new ProcessBuilder(
                     "python",
@@ -69,16 +74,20 @@ public class PythonExecutor {
 
             if (!process.waitFor(PythonConstants.PYTHON_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
                 process.destroy();
-                return false;
+                success = false;
+            }
+
+            if (process.exitValue() != 0) {
+                success = false;
             }
 
             if (PythonConstants.PYTHON_ENABLE_PRINTING) {
                 printingThread.join();
             }
         } catch (final Exception exception) {
-            return false;
+            success = false;
         }
 
-        return true;
+        return success;
     }
 }

@@ -7,6 +7,7 @@ import com.backend.thesis.utility.Constants;
 import com.backend.thesis.utility.Helper;
 import com.backend.thesis.utility.Type;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -40,10 +41,15 @@ public class TestController {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
-        final var result = this.testService.dickeyFullerTest(
+        final Type.ActionResult<JSONObject> result = this.testService.dickeyFullerTest(
                 datasetResult.data(),
                 Helper.stringToDouble(pValue)
         );
-        return new ResponseEntity<>(new Type.RequestResult<>("ok", null), HttpStatus.OK);
+
+        if (result.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+        }
     }
 }
