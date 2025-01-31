@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
 
@@ -67,6 +68,14 @@ public class Helper {
 
     public static Double stringToDouble(final String string) {
         return Double.parseDouble(string);
+    }
+
+    public static Optional<Integer> tryStringToInt(final Optional<String> string) {
+        if (string.isPresent() && !string.get().isEmpty()) {
+            return Optional.of(Integer.parseInt(string.get()));
+        }
+
+        return Optional.empty();
     }
 
     public static Long intToLong(final Integer integer) {

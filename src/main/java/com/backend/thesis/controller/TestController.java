@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 public class TestController {
     private final DatasetService datasetService;
@@ -30,7 +32,10 @@ public class TestController {
     public ResponseEntity<Type.RequestResult<String>> handleDickeyFullerTest(
             final HttpServletRequest request,
             @RequestParam(name = "idDataset") final String idDataset,
-            @RequestParam(name = "pValue") final String pValue
+            @RequestParam(name = "pValue") final String pValue,
+            @RequestParam(name = "maxLag", required = false) final Optional<String> maxLag,
+            @RequestParam(name = "regression", required = false) final Optional<String> regression,
+            @RequestParam(name = "autolag", required = false) final Optional<String> autolag
     ) {
         final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
@@ -43,7 +48,10 @@ public class TestController {
 
         final Type.ActionResult<JSONObject> result = this.testService.dickeyFullerTest(
                 datasetResult.data(),
-                Helper.stringToDouble(pValue)
+                Helper.stringToDouble(pValue),
+                Helper.tryStringToInt(maxLag),
+                regression,
+                autolag
         );
 
         if (result.success()) {
