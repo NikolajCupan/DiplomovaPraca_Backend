@@ -19,5 +19,6 @@ public class PythonConstants {
 
     public static final String ACTION_DICKEY_FULLER_TEST = "dicker_fuller_test";
     public static final String ACTION_KPSS_TEST = "kpss_test";
+    public static final String ACTION_ARCH_TEST = "arch_test";
     public static final String ACTION_LJUNG_BOX_TEST = "ljung_box_test";
 }

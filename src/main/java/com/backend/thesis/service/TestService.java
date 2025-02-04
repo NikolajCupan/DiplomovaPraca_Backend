@@ -100,6 +100,26 @@ public class TestService {
         return TestService.handleTest(json);
     }
 
+    public Type.ActionResult<JSONObject> archTest(
+            final DatasetEntity datasetEntity,
+            final double pValue,
+            final Optional<Integer> maxLag,
+            final Optional<Integer> dfCount) {
+        final JSONObject json = new JSONObject();
+
+        try {
+            json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_ARCH_TEST);
+            json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
+            json.put(PythonConstants.P_VALUE_KEY, pValue);
+            TestService.appendIfAvailable(json, "nlags", maxLag);
+            TestService.appendIfAvailable(json, "ddof", dfCount);
+        } catch (final Exception ignore) {
+            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+        }
+
+        return TestService.handleTest(json);
+    }
+
     public Type.ActionResult<JSONObject> ljungBoxTest(
             final DatasetEntity datasetEntity,
             final double pValue,
