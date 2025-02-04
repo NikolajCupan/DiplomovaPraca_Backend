@@ -78,6 +78,14 @@ public class Helper {
         return Optional.empty();
     }
 
+    public static Optional<Boolean> tryStringToBoolean(final Optional<String> string) {
+        if (string.isPresent() && !string.get().isEmpty()) {
+            return Optional.of(Boolean.parseBoolean(string.get()));
+        }
+
+        return Optional.empty();
+    }
+
     public static Long intToLong(final Integer integer) {
         return Long.valueOf(integer);
     }

@@ -99,4 +99,29 @@ public class TestService {
 
         return TestService.handleTest(json);
     }
+
+    public Type.ActionResult<JSONObject> ljungBoxTest(
+            final DatasetEntity datasetEntity,
+            final double pValue,
+            final Optional<Integer> period,
+            final Optional<Integer> lagsCount,
+            final Optional<Boolean> autoLag,
+            final Optional<Integer> dfCount
+    ) {
+        final JSONObject json = new JSONObject();
+
+        try {
+            json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_LJUNG_BOX_TEST);
+            json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
+            json.put(PythonConstants.P_VALUE_KEY, pValue);
+            TestService.appendIfAvailable(json, "period", period);
+            TestService.appendIfAvailable(json, "lags", lagsCount);
+            TestService.appendIfAvailable(json, "auto_lag", autoLag);
+            TestService.appendIfAvailable(json, "model_df", dfCount);
+        } catch (final Exception ignore) {
+            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+        }
+
+        return TestService.handleTest(json);
+    }
 }
