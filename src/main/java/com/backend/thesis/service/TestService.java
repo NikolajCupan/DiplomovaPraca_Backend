@@ -54,7 +54,7 @@ public class TestService {
         if (success) {
             return new Type.ActionResult<>(true, "Test bol úspešne vykonaný", outputJson);
         } else {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+            return new Type.ActionResult<>(false, "Chyba pri vykonávaní akcie", null);
         }
     }
 
@@ -93,6 +93,38 @@ public class TestService {
             json.put(PythonConstants.P_VALUE_KEY, pValue);
             TestService.appendIfAvailable(json, "regression", regression);
             TestService.appendIfAvailable(json, "nlags", nlags);
+        } catch (final Exception ignore) {
+            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+        }
+
+        return TestService.handleTest(json);
+    }
+
+    public Type.ActionResult<JSONObject> seasonalDecompose(
+            final DatasetEntity datasetEntity,
+            final Optional<Integer> period,
+            final Optional<String> modelType) {
+        final JSONObject json = new JSONObject();
+
+        try {
+            json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_SEASONAL_DECOMPOSE);
+            json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
+            TestService.appendIfAvailable(json, "period", period);
+            TestService.appendIfAvailable(json, "model", modelType);
+        } catch (final Exception ignore) {
+            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+        }
+
+        return TestService.handleTest(json);
+    }
+
+    public Type.ActionResult<JSONObject> periodogram(
+            final DatasetEntity datasetEntity) {
+        final JSONObject json = new JSONObject();
+
+        try {
+            json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_PERIODOGRAM);
+            json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
