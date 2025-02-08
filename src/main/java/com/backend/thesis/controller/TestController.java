@@ -130,7 +130,7 @@ public class TestController {
             @RequestParam(name = "idDataset") final String idDataset,
             @RequestParam(name = "fs", required = false) final Optional<String> samplingFrequency,
             @RequestParam(name = "nfft", required = false) final Optional<String> fft,
-            @RequestParam(name = "spectrum", required = false) final Optional<String> spectrum,
+            @RequestParam(name = "return_onesided", required = false) final Optional<String> spectrum,
             @RequestParam(name = "scaling", required = false) final Optional<String> scaling
     ) {
         final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
@@ -148,6 +148,74 @@ public class TestController {
                 Helper.tryStringToInt(fft),
                 Helper.tryStringToBoolean(spectrum),
                 scaling
+        );
+
+        if (result.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
+    @PostMapping(path = "/test/correlogram-acf")
+    public ResponseEntity<Type.RequestResult<String>> handleCorrelogramAcf(
+            final HttpServletRequest request,
+            @RequestParam(name = "idDataset") final String idDataset,
+            @RequestParam(name = "adjusted", required = false) final Optional<String> autocovariance,
+            @RequestParam(name = "nlags", required = false) final Optional<String> lagsCount,
+            @RequestParam(name = "fft", required = false) final Optional<String> useFft,
+            @RequestParam(name = "alpha", required = false) final Optional<String> alpha,
+            @RequestParam(name = "bartlett_confint", required = false) final Optional<String> useBartlettFormula
+    ) {
+        final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
+                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                Helper.stringToLong(idDataset)
+        );
+
+        if (!datasetResult.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
+        }
+
+        final Type.ActionResult<JSONObject> result = this.testService.acf(
+                datasetResult.data(),
+                Helper.tryStringToBoolean(autocovariance),
+                Helper.tryStringToInt(lagsCount),
+                Helper.tryStringToBoolean(useFft),
+                Helper.tryStringToDouble(alpha),
+                Helper.tryStringToBoolean(useBartlettFormula)
+        );
+
+        if (result.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
+    @PostMapping(path = "/test/correlogram-pacf")
+    public ResponseEntity<Type.RequestResult<String>> handleCorrelogramPacf(
+            final HttpServletRequest request,
+            @RequestParam(name = "idDataset") final String idDataset,
+            @RequestParam(name = "nlags", required = false) final Optional<String> lagsCount,
+            @RequestParam(name = "method", required = false) final Optional<String> method,
+            @RequestParam(name = "alpha", required = false) final Optional<String> alpha
+    ) {
+        final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
+                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                Helper.stringToLong(idDataset)
+        );
+
+        if (!datasetResult.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
+        }
+
+        final Type.ActionResult<JSONObject> result = this.testService.pacf(
+                datasetResult.data(),
+                Helper.tryStringToInt(lagsCount),
+                method,
+                Helper.tryStringToDouble(alpha)
         );
 
         if (result.success()) {

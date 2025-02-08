@@ -21,6 +21,8 @@ public class PythonConstants {
     public static final String ACTION_KPSS_TEST = "kpss_test";
     public static final String ACTION_SEASONAL_DECOMPOSE = "seasonal_decompose";
     public static final String ACTION_PERIODOGRAM = "periodogram";
+    public static final String ACTION_CORRELOGRAM_ACF = "correlogram_acf";
+    public static final String ACTION_CORRELOGRAM_PACF = "correlogram_pacf";
     public static final String ACTION_ARCH_TEST = "arch_test";
     public static final String ACTION_LJUNG_BOX_TEST = "ljung_box_test";
 }

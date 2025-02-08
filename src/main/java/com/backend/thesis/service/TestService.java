@@ -135,8 +135,54 @@ public class TestService {
             json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
             TestService.appendIfAvailable(json, "fs", samplingFrequency);
             TestService.appendIfAvailable(json, "nfft", fft);
-            TestService.appendIfAvailable(json, "spectrum", spectrum);
+            TestService.appendIfAvailable(json, "return_onesided", spectrum);
             TestService.appendIfAvailable(json, "scaling", scaling);
+        } catch (final Exception ignore) {
+            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+        }
+
+        return TestService.handleTest(json);
+    }
+
+    public Type.ActionResult<JSONObject> acf(
+            final DatasetEntity datasetEntity,
+            final Optional<Boolean> autocovariance,
+            final Optional<Integer> lagsCount,
+            final Optional<Boolean> useFft,
+            final Optional<Double> alpha,
+            final Optional<Boolean> useBartlettFormula
+    ) {
+        final JSONObject json = new JSONObject();
+
+        try {
+            json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_CORRELOGRAM_ACF);
+            json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
+            TestService.appendIfAvailable(json, "adjusted", autocovariance);
+            TestService.appendIfAvailable(json, "nlags", lagsCount);
+            TestService.appendIfAvailable(json, "fft", useFft);
+            TestService.appendIfAvailable(json, "alpha", alpha);
+            TestService.appendIfAvailable(json, "bartlett_confint", useBartlettFormula);
+        } catch (final Exception ignore) {
+            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+        }
+
+        return TestService.handleTest(json);
+    }
+
+    public Type.ActionResult<JSONObject> pacf(
+            final DatasetEntity datasetEntity,
+            final Optional<Integer> lagsCount,
+            final Optional<String> method,
+            final Optional<Double> alpha
+    ) {
+        final JSONObject json = new JSONObject();
+
+        try {
+            json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_CORRELOGRAM_PACF);
+            json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
+            TestService.appendIfAvailable(json, "nlags", lagsCount);
+            TestService.appendIfAvailable(json, "method", method);
+            TestService.appendIfAvailable(json, "alpha", alpha);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
