@@ -127,7 +127,11 @@ public class TestController {
     @PostMapping(path = "/test/periodogram")
     public ResponseEntity<Type.RequestResult<String>> handlePeriodogram(
             final HttpServletRequest request,
-            @RequestParam(name = "idDataset") final String idDataset
+            @RequestParam(name = "idDataset") final String idDataset,
+            @RequestParam(name = "fs", required = false) final Optional<String> samplingFrequency,
+            @RequestParam(name = "nfft", required = false) final Optional<String> fft,
+            @RequestParam(name = "spectrum", required = false) final Optional<String> spectrum,
+            @RequestParam(name = "scaling", required = false) final Optional<String> scaling
     ) {
         final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
@@ -139,7 +143,11 @@ public class TestController {
         }
 
         final Type.ActionResult<JSONObject> result = this.testService.periodogram(
-                datasetResult.data()
+                datasetResult.data(),
+                Helper.tryStringToDouble(samplingFrequency),
+                Helper.tryStringToInt(fft),
+                Helper.tryStringToBoolean(spectrum),
+                scaling
         );
 
         if (result.success()) {
