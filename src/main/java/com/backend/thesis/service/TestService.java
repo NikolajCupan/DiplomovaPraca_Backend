@@ -146,10 +146,10 @@ public class TestService {
 
     public Type.ActionResult<JSONObject> acf(
             final DatasetEntity datasetEntity,
+            final Optional<Double> alpha,
             final Optional<Boolean> autocovariance,
             final Optional<Integer> lagsCount,
             final Optional<Boolean> useFft,
-            final Optional<Double> alpha,
             final Optional<Boolean> useBartlettFormula
     ) {
         final JSONObject json = new JSONObject();
@@ -157,10 +157,10 @@ public class TestService {
         try {
             json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_CORRELOGRAM_ACF);
             json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
+            TestService.appendIfAvailable(json, "alpha", alpha);
             TestService.appendIfAvailable(json, "adjusted", autocovariance);
             TestService.appendIfAvailable(json, "nlags", lagsCount);
             TestService.appendIfAvailable(json, "fft", useFft);
-            TestService.appendIfAvailable(json, "alpha", alpha);
             TestService.appendIfAvailable(json, "bartlett_confint", useBartlettFormula);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
@@ -171,18 +171,18 @@ public class TestService {
 
     public Type.ActionResult<JSONObject> pacf(
             final DatasetEntity datasetEntity,
+            final Optional<Double> alpha,
             final Optional<Integer> lagsCount,
-            final Optional<String> method,
-            final Optional<Double> alpha
+            final Optional<String> method
     ) {
         final JSONObject json = new JSONObject();
 
         try {
             json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_CORRELOGRAM_PACF);
             json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
+            TestService.appendIfAvailable(json, "alpha", alpha);
             TestService.appendIfAvailable(json, "nlags", lagsCount);
             TestService.appendIfAvailable(json, "method", method);
-            TestService.appendIfAvailable(json, "alpha", alpha);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }

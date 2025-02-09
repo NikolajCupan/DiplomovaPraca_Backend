@@ -162,10 +162,10 @@ public class TestController {
     public ResponseEntity<Type.RequestResult<String>> handleCorrelogramAcf(
             final HttpServletRequest request,
             @RequestParam(name = "idDataset") final String idDataset,
+            @RequestParam(name = "alpha", required = false) final Optional<String> alpha,
             @RequestParam(name = "adjusted", required = false) final Optional<String> autocovariance,
             @RequestParam(name = "nlags", required = false) final Optional<String> lagsCount,
             @RequestParam(name = "fft", required = false) final Optional<String> useFft,
-            @RequestParam(name = "alpha", required = false) final Optional<String> alpha,
             @RequestParam(name = "bartlett_confint", required = false) final Optional<String> useBartlettFormula
     ) {
         final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
@@ -179,10 +179,10 @@ public class TestController {
 
         final Type.ActionResult<JSONObject> result = this.testService.acf(
                 datasetResult.data(),
+                Helper.tryStringToDouble(alpha),
                 Helper.tryStringToBoolean(autocovariance),
                 Helper.tryStringToInt(lagsCount),
                 Helper.tryStringToBoolean(useFft),
-                Helper.tryStringToDouble(alpha),
                 Helper.tryStringToBoolean(useBartlettFormula)
         );
 
@@ -198,9 +198,9 @@ public class TestController {
     public ResponseEntity<Type.RequestResult<String>> handleCorrelogramPacf(
             final HttpServletRequest request,
             @RequestParam(name = "idDataset") final String idDataset,
+            @RequestParam(name = "alpha", required = false) final Optional<String> alpha,
             @RequestParam(name = "nlags", required = false) final Optional<String> lagsCount,
-            @RequestParam(name = "method", required = false) final Optional<String> method,
-            @RequestParam(name = "alpha", required = false) final Optional<String> alpha
+            @RequestParam(name = "method", required = false) final Optional<String> method
     ) {
         final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
@@ -213,9 +213,9 @@ public class TestController {
 
         final Type.ActionResult<JSONObject> result = this.testService.pacf(
                 datasetResult.data(),
+                Helper.tryStringToDouble(alpha),
                 Helper.tryStringToInt(lagsCount),
-                method,
-                Helper.tryStringToDouble(alpha)
+                method
         );
 
         if (result.success()) {
