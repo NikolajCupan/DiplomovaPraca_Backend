@@ -154,8 +154,11 @@ public class DatasetService {
                 csvFile.editRow(editedRow.dateTime(), editedRow.value(), Helper.stringToFrequency(frequencyEntity.getFrequencyType()));
             }
             csvFile.trim();
-            datasetEntity.setRowsCount(csvFile.getRowsCount());
             csvFile.saveToFile();
+
+            datasetEntity.setRowsCount(csvFile.getRowsCount());
+            datasetEntity.setStartAt(csvFile.getStartDateTime());
+            datasetEntity.setEndAt(csvFile.getEndDateTime());
 
             if (newColumnName.isPresent() && !newColumnName.get().isEmpty()) {
                 datasetEntity.setColumnName(newColumnName.get());

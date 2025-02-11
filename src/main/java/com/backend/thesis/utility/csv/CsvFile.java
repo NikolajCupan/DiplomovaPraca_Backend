@@ -45,7 +45,7 @@ public class CsvFile {
         }
     }
 
-    private String fileName;
+    private final String fileName;
     private final List<Type.DatasetRow> data;
 
     public CsvFile(final String fileName) {

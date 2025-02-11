@@ -96,4 +96,12 @@ public class DatasetEntity {
     public void setRowsCount(final Long rowsCount) {
         this.rowsCount = rowsCount;
     }
+
+    public void setStartAt(final LocalDateTime startAt) {
+        this.startAt = startAt;
+    }
+
+    public void setEndAt(final LocalDateTime endAt) {
+        this.endAt = endAt;
+    }
 }
