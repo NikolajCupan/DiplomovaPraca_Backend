@@ -118,7 +118,8 @@ public class FileController {
     ) {
         final Type.ActionResult<DatasetForEditingDto> result = this.datasetService.getDatasetOfUserForEditing(
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
-                Helper.stringToLong(idDataset)
+                Helper.stringToLong(idDataset),
+                true
         );
 
         if (result.success()) {
@@ -129,18 +130,18 @@ public class FileController {
     }
 
     @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
-    @PostMapping(path = "/dataset/edit")
-    public ResponseEntity<Type.RequestResult<DatasetForEditingDto>> handleDatasetEdit(
+    @PostMapping(path = "/dataset/edit/v2")
+    public ResponseEntity<Type.RequestResult<DatasetForEditingDto>> handleDatasetEditV2(
             final HttpServletRequest request,
             @RequestParam(name = "idDataset") final String idDataset,
-            @RequestParam(name = "newColumnName") final Optional<String> newColumnName,
-            @RequestParam(name = "rows") final String rawRows
+            @RequestParam(name = "newDatasetName") final Optional<String> newDatasetName,
+            @RequestParam(name = "newColumnName") final Optional<String> newColumnName
     ) {
-        final Type.ActionResult<DatasetForEditingDto> result = this.datasetService.editDataset(
+        final Type.ActionResult<DatasetForEditingDto> result = this.datasetService.editDatasetV2(
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
                 Helper.stringToLong(idDataset),
-                newColumnName,
-                Helper.rawRowsToRows(rawRows)
+                newDatasetName,
+                newColumnName
         );
 
         if (result.success()) {

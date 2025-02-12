@@ -89,6 +89,10 @@ public class DatasetEntity {
         return this.fileName;
     }
 
+    public void setDatasetName(final String datasetName) {
+        this.datasetName = datasetName;
+    }
+
     public void setColumnName(final String columnName) {
         this.columnName = columnName;
     }

@@ -118,7 +118,11 @@ public class DatasetService {
         return new Type.ActionResult<>(true, "Datasety boli odoslané", datasetInfoDtos);
     }
 
-    public Type.ActionResult<DatasetForEditingDto> getDatasetOfUserForEditing(final String cookie, final Long idDataset) {
+    public Type.ActionResult<DatasetForEditingDto> getDatasetOfUserForEditing(
+            final String cookie,
+            final Long idDataset,
+            final boolean includeData
+    ) {
         final Type.ActionResult<DatasetEntity> result = this.getDatasetOfUser(cookie, idDataset);
 
         if (!result.success()) {
@@ -127,52 +131,40 @@ public class DatasetService {
 
         try {
             return new Type.ActionResult<>(
-                    true, "Dataset bol odoslaný na editáciu", this.mapper.datasetEntityToDatasetForEditingDto(result.data())
+                    true, "Dataset bol odoslaný na editáciu", this.mapper.datasetEntityToDatasetForEditingDto(result.data(), includeData)
             );
         } catch (final RequestException exception) {
             return new Type.ActionResult<>(false, exception.getMessage(), null);
         }
     }
 
-    public Type.ActionResult<DatasetForEditingDto> editDataset(
+    public Type.ActionResult<DatasetForEditingDto> editDatasetV2(
             final String cookie,
             final Long idDataset,
-            final Optional<String> newColumnName,
-            final List<Type.DatasetRow> rows
+            final Optional<String> newDatasetName,
+            final Optional<String> newColumnName
     ) {
         final Type.ActionResult<DatasetEntity> result = this.getDatasetOfUser(cookie, idDataset);
         if (!result.success()) {
             return new Type.ActionResult<>(false, result.message(), null);
         }
 
-        try {
-            final DatasetEntity datasetEntity = this.datasetRepository.findById(idDataset).get();
-            final FrequencyEntity frequencyEntity = this.frequencyRepository.findById(datasetEntity.getIdFrequency()).get();
+        final DatasetEntity datasetEntity = this.datasetRepository.findById(idDataset).get();
+        if (newDatasetName.isPresent() && !newDatasetName.get().isEmpty()) {
+            datasetEntity.setDatasetName(newDatasetName.get());
+        }
+        if (newColumnName.isPresent() && !newColumnName.get().isEmpty()) {
+            datasetEntity.setColumnName(newColumnName.get());
+        }
 
-            final CsvFile csvFile = CsvFile.readFromFile(result.data().getFileName());
-            for (final Type.DatasetRow editedRow : rows) {
-                csvFile.editRow(editedRow.dateTime(), editedRow.value(), Helper.stringToFrequency(frequencyEntity.getFrequencyType()));
-            }
-            csvFile.trim();
-            csvFile.saveToFile();
+        this.datasetRepository.save(datasetEntity);
+        final Type.ActionResult<DatasetForEditingDto> updatedDatasetForEditing
+                = this.getDatasetOfUserForEditing(cookie, idDataset, false);
 
-            datasetEntity.setRowsCount(csvFile.getRowsCount());
-            datasetEntity.setStartAt(csvFile.getStartDateTime());
-            datasetEntity.setEndAt(csvFile.getEndDateTime());
-
-            if (newColumnName.isPresent() && !newColumnName.get().isEmpty()) {
-                datasetEntity.setColumnName(newColumnName.get());
-            }
-
-            this.datasetRepository.save(datasetEntity);
-            final Type.ActionResult<DatasetForEditingDto> updatedDatasetForEditing = this.getDatasetOfUserForEditing(cookie, idDataset);
-            if (updatedDatasetForEditing.success()) {
-                return new Type.ActionResult<>(true, "Dataset bol úspešne editovaný", null);
-            } else {
-                return new Type.ActionResult<>(false, result.message(), null);
-            }
-        } catch (final RequestException exception) {
-            return new Type.ActionResult<>(false, exception.getMessage(), null);
+        if (updatedDatasetForEditing.success()) {
+            return new Type.ActionResult<>(true, "Dataset bol úspešne editovaný", updatedDatasetForEditing.data());
+        } else {
+            return new Type.ActionResult<>(false, result.message(), null);
         }
     }
 

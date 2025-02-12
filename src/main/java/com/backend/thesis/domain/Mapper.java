@@ -39,14 +39,16 @@ public class Mapper {
         return datasetInfoDto;
     }
 
-    public DatasetForEditingDto datasetEntityToDatasetForEditingDto(final DatasetEntity datasetEntity) throws RequestException {
+    public DatasetForEditingDto datasetEntityToDatasetForEditingDto(final DatasetEntity datasetEntity, final boolean includeData) throws RequestException {
         final DatasetInfoDto datasetInfoDto = this.datasetEntityToDatasetInfoDto(datasetEntity);
 
         DatasetForEditingDto datasetForEditingDto = new DatasetForEditingDto();
         datasetForEditingDto.setDatasetInfoDto(datasetInfoDto);
 
-        final CsvFile csvFile = CsvFile.readFromFile(datasetEntity.getFileName());
-        datasetForEditingDto.setRows(csvFile.getData());
+        if (includeData) {
+            final CsvFile csvFile = CsvFile.readFromFile(datasetEntity.getFileName());
+            datasetForEditingDto.setRows(csvFile.getData());
+        }
 
         return datasetForEditingDto;
     }
