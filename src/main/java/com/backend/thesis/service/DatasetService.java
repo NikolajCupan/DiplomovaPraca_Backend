@@ -58,6 +58,10 @@ public class DatasetService {
                     file, startDateTime, dateFormat, frequency, fileName, dateColumnName, dataColumnName, datasetHasDateColumn, datasetHasHeader
             );
 
+            if (Helper.isInvalidDate(csv.getEndDateTime())) {
+                return new Type.ActionResult<>(false, "Dataset obsahuje neplatné dátumy", null);
+            }
+
             csv.saveToFile();
 
             final UserEntity userEntity = this.userRepository.findByCookie(cookie);

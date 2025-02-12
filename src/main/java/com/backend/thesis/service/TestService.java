@@ -33,31 +33,6 @@ public class TestService {
         }
     }
 
-    private static Type.ActionResult<JSONObject> handleTest(final JSONObject json) {
-        JSONObject outputJson = new JSONObject();
-        boolean success;
-
-        try {
-            final String inputJsonString = json.toString();
-            final String jsonFileName = PythonExecutor.saveJson(inputJsonString);
-            success = PythonExecutor.executeAction(jsonFileName);
-
-            if (success) {
-                outputJson = PythonExecutor.readJson(jsonFileName);
-            }
-
-            PythonExecutor.deleteFiles(jsonFileName);
-        } catch (final Exception exception) {
-            success = false;
-        }
-
-        if (success) {
-            return new Type.ActionResult<>(true, "Test bol úspešne vykonaný", outputJson);
-        } else {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní akcie", null);
-        }
-    }
-
     public Type.ActionResult<JSONObject> dickeyFullerTest(
             final DatasetEntity datasetEntity,
             final double pValue,
@@ -78,7 +53,7 @@ public class TestService {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
 
-        return TestService.handleTest(json);
+        return PythonExecutor.handleAction(json);
     }
 
     public Type.ActionResult<JSONObject> kpssTest(
@@ -99,7 +74,7 @@ public class TestService {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
 
-        return TestService.handleTest(json);
+        return PythonExecutor.handleAction(json);
     }
 
     public Type.ActionResult<JSONObject> seasonalDecompose(
@@ -118,7 +93,7 @@ public class TestService {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
 
-        return TestService.handleTest(json);
+        return PythonExecutor.handleAction(json);
     }
 
     public Type.ActionResult<JSONObject> periodogram(
@@ -141,7 +116,7 @@ public class TestService {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
 
-        return TestService.handleTest(json);
+        return PythonExecutor.handleAction(json);
     }
 
     public Type.ActionResult<JSONObject> acf(
@@ -166,7 +141,7 @@ public class TestService {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
 
-        return TestService.handleTest(json);
+        return PythonExecutor.handleAction(json);
     }
 
     public Type.ActionResult<JSONObject> pacf(
@@ -187,7 +162,7 @@ public class TestService {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
 
-        return TestService.handleTest(json);
+        return PythonExecutor.handleAction(json);
     }
 
     public Type.ActionResult<JSONObject> archTest(
@@ -208,7 +183,7 @@ public class TestService {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
 
-        return TestService.handleTest(json);
+        return PythonExecutor.handleAction(json);
     }
 
     public Type.ActionResult<JSONObject> ljungBoxTest(
@@ -233,6 +208,6 @@ public class TestService {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
 
-        return TestService.handleTest(json);
+        return PythonExecutor.handleAction(json);
     }
 }

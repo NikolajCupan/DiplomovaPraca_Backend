@@ -22,7 +22,7 @@ public class TestController {
     private final DatasetService datasetService;
     private final TestService testService;
 
-    public TestController(final DatasetService datasetService, TestService testService) {
+    public TestController(final DatasetService datasetService, final TestService testService) {
         this.datasetService = datasetService;
         this.testService = testService;
     }

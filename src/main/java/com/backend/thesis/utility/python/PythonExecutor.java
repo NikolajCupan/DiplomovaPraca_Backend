@@ -1,6 +1,7 @@
 package com.backend.thesis.utility.python;
 
 import com.backend.thesis.utility.Helper;
+import com.backend.thesis.utility.Type;
 import org.apache.commons.io.IOUtils;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
@@ -89,5 +90,30 @@ public class PythonExecutor {
         }
 
         return success;
+    }
+
+    public static Type.ActionResult<JSONObject> handleAction(final JSONObject json) {
+        JSONObject outputJson = new JSONObject();
+        boolean success;
+
+        try {
+            final String inputJsonString = json.toString();
+            final String jsonFileName = PythonExecutor.saveJson(inputJsonString);
+            success = PythonExecutor.executeAction(jsonFileName);
+
+            if (success) {
+                outputJson = PythonExecutor.readJson(jsonFileName);
+            }
+
+            PythonExecutor.deleteFiles(jsonFileName);
+        } catch (final Exception exception) {
+            success = false;
+        }
+
+        if (success) {
+            return new Type.ActionResult<>(true, "Akcie bola úspešne vykonaná", outputJson);
+        } else {
+            return new Type.ActionResult<>(false, "Chyba pri vykonávaní akcie", null);
+        }
     }
 }

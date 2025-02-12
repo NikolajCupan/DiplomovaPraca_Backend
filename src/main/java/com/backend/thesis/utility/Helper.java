@@ -3,7 +3,10 @@ package com.backend.thesis.utility;
 import com.backend.thesis.domain.dto.Frequency;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -129,6 +132,19 @@ public class Helper {
         };
     }
 
+    public static MultipartFile fileToMultipartFile(final File file) throws IOException {
+        try (final FileInputStream fileInputStream = new FileInputStream(file)) {
+            final byte[] fileBytes = fileInputStream.readAllBytes();
+
+            return new MockMultipartFile(
+                    "file",
+                    file.getName(),
+                    "text/plain",
+                    fileBytes
+            );
+        }
+    }
+
     public static boolean stringIsNumeric(final String stringToCheck) {
         try {
             Double.parseDouble(stringToCheck);
@@ -178,5 +194,9 @@ public class Helper {
             case Frequency.QUARTERLY -> currentDateTime.minusMonths(3);
             case Frequency.YEARLY -> currentDateTime.minusYears(1);
         };
+    }
+
+    public static boolean isInvalidDate(final LocalDateTime date) {
+        return date.isAfter(Constants.MAXIMUM_DATE_TIME);
     }
 }
