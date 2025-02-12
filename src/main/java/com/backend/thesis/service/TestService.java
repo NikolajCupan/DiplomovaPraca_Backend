@@ -4,7 +4,7 @@ import com.backend.thesis.domain.entity.DatasetEntity;
 import com.backend.thesis.utility.Type;
 import com.backend.thesis.utility.python.PythonConstants;
 import com.backend.thesis.utility.python.PythonExecutor;
-import org.springframework.boot.configurationprocessor.json.JSONException;
+import com.backend.thesis.utility.python.PythonHelper;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -13,24 +13,6 @@ import java.util.Optional;
 @Service
 public class TestService {
     public TestService() {
-    }
-
-    private static <T> void appendIfAvailable(
-            final JSONObject json,
-            final String key,
-            final Optional<T> optionalValue
-    ) throws JSONException {
-        if (optionalValue.isPresent()) {
-            final T value = optionalValue.get();
-
-            if (value instanceof String stringValue) {
-                if (!stringValue.isEmpty()) {
-                    json.put(key, stringValue);
-                }
-            } else {
-                json.put(key, value);
-            }
-        }
     }
 
     public Type.ActionResult<JSONObject> dickeyFullerTest(
@@ -46,9 +28,9 @@ public class TestService {
             json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_DICKEY_FULLER_TEST);
             json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
             json.put(PythonConstants.P_VALUE_KEY, pValue);
-            TestService.appendIfAvailable(json, "maxlag", maxlag);
-            TestService.appendIfAvailable(json, "regression", regression);
-            TestService.appendIfAvailable(json, "autolag", autolag);
+            PythonHelper.appendIfAvailable(json, "maxlag", maxlag);
+            PythonHelper.appendIfAvailable(json, "regression", regression);
+            PythonHelper.appendIfAvailable(json, "autolag", autolag);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
@@ -68,8 +50,8 @@ public class TestService {
             json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_KPSS_TEST);
             json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
             json.put(PythonConstants.P_VALUE_KEY, pValue);
-            TestService.appendIfAvailable(json, "regression", regression);
-            TestService.appendIfAvailable(json, "nlags", nlags);
+            PythonHelper.appendIfAvailable(json, "regression", regression);
+            PythonHelper.appendIfAvailable(json, "nlags", nlags);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
@@ -87,8 +69,8 @@ public class TestService {
         try {
             json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_SEASONAL_DECOMPOSE);
             json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
-            TestService.appendIfAvailable(json, "period", period);
-            TestService.appendIfAvailable(json, "model", modelType);
+            PythonHelper.appendIfAvailable(json, "period", period);
+            PythonHelper.appendIfAvailable(json, "model", modelType);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
@@ -108,10 +90,10 @@ public class TestService {
         try {
             json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_PERIODOGRAM);
             json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
-            TestService.appendIfAvailable(json, "fs", samplingFrequency);
-            TestService.appendIfAvailable(json, "nfft", fft);
-            TestService.appendIfAvailable(json, "return_onesided", spectrum);
-            TestService.appendIfAvailable(json, "scaling", scaling);
+            PythonHelper.appendIfAvailable(json, "fs", samplingFrequency);
+            PythonHelper.appendIfAvailable(json, "nfft", fft);
+            PythonHelper.appendIfAvailable(json, "return_onesided", spectrum);
+            PythonHelper.appendIfAvailable(json, "scaling", scaling);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
@@ -132,11 +114,11 @@ public class TestService {
         try {
             json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_CORRELOGRAM_ACF);
             json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
-            TestService.appendIfAvailable(json, "alpha", alpha);
-            TestService.appendIfAvailable(json, "adjusted", autocovariance);
-            TestService.appendIfAvailable(json, "nlags", lagsCount);
-            TestService.appendIfAvailable(json, "fft", useFft);
-            TestService.appendIfAvailable(json, "bartlett_confint", useBartlettFormula);
+            PythonHelper.appendIfAvailable(json, "alpha", alpha);
+            PythonHelper.appendIfAvailable(json, "adjusted", autocovariance);
+            PythonHelper.appendIfAvailable(json, "nlags", lagsCount);
+            PythonHelper.appendIfAvailable(json, "fft", useFft);
+            PythonHelper.appendIfAvailable(json, "bartlett_confint", useBartlettFormula);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
@@ -155,9 +137,9 @@ public class TestService {
         try {
             json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_CORRELOGRAM_PACF);
             json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
-            TestService.appendIfAvailable(json, "alpha", alpha);
-            TestService.appendIfAvailable(json, "nlags", lagsCount);
-            TestService.appendIfAvailable(json, "method", method);
+            PythonHelper.appendIfAvailable(json, "alpha", alpha);
+            PythonHelper.appendIfAvailable(json, "nlags", lagsCount);
+            PythonHelper.appendIfAvailable(json, "method", method);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
@@ -177,8 +159,8 @@ public class TestService {
             json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_ARCH_TEST);
             json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
             json.put(PythonConstants.P_VALUE_KEY, pValue);
-            TestService.appendIfAvailable(json, "nlags", maxLag);
-            TestService.appendIfAvailable(json, "ddof", dfCount);
+            PythonHelper.appendIfAvailable(json, "nlags", maxLag);
+            PythonHelper.appendIfAvailable(json, "ddof", dfCount);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }
@@ -200,10 +182,10 @@ public class TestService {
             json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_LJUNG_BOX_TEST);
             json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
             json.put(PythonConstants.P_VALUE_KEY, pValue);
-            TestService.appendIfAvailable(json, "period", period);
-            TestService.appendIfAvailable(json, "lags", lagsCount);
-            TestService.appendIfAvailable(json, "auto_lag", autoLag);
-            TestService.appendIfAvailable(json, "model_df", dfCount);
+            PythonHelper.appendIfAvailable(json, "period", period);
+            PythonHelper.appendIfAvailable(json, "lags", lagsCount);
+            PythonHelper.appendIfAvailable(json, "auto_lag", autoLag);
+            PythonHelper.appendIfAvailable(json, "model_df", dfCount);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
         }

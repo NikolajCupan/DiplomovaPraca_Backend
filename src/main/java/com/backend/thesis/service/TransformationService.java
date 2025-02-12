@@ -1,6 +1,7 @@
 package com.backend.thesis.service;
 
 import com.backend.thesis.domain.dto.DatasetInfoDto;
+import com.backend.thesis.domain.dto.Frequency;
 import com.backend.thesis.domain.entity.DatasetEntity;
 import com.backend.thesis.domain.entity.FrequencyEntity;
 import com.backend.thesis.domain.repository.FrequencyRepository;
@@ -26,6 +27,52 @@ public class TransformationService {
         this.datasetService = datasetService;
     }
 
+    private Type.ActionResult<DatasetInfoDto> handleTransformation(
+            final String cookie,
+            final JSONObject json,
+            final String transformedDatasetName,
+            final Frequency frequency
+    ) {
+        final Type.ActionResult<JSONObject> result = PythonExecutor.handleAction(json);
+        if (!result.success()) {
+            return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
+        }
+
+        try {
+            if (!result.data().getBoolean(PythonConstants.SUCCESS_KEY)) {
+                return new Type.ActionResult<>(
+                        false,
+                        result.data().getJSONObject(PythonConstants.EXCEPTION_KEY).getString(PythonConstants.JSON_ELEMENT_RESULT_KEY),
+                        null
+                );
+            }
+
+            final String fileNameFromJson =
+                    result.data().getJSONObject(PythonConstants.TRANSFORMED_FILE_NAME_KEY).getString(PythonConstants.JSON_ELEMENT_RESULT_KEY);
+            final String startDateTimeFromJson =
+                    result.data().getJSONObject(PythonConstants.START_DATE_TIME_KEY).getString(PythonConstants.JSON_ELEMENT_RESULT_KEY);
+            final File file = new File(fileNameFromJson);
+
+            final Type.ActionResult<DatasetInfoDto> saveResult = this.datasetService.tryToSaveDataset(
+                    cookie,
+                    transformedDatasetName,
+                    Helper.fileToMultipartFile(file),
+                    Optional.of(Helper.stringToLocalDateTime(startDateTimeFromJson)),
+                    Optional.of(Constants.DEFAULT_DATE_TIME_FORMAT),
+                    frequency,
+                    Optional.empty(),
+                    Optional.empty(),
+                    true,
+                    false
+            );
+            file.delete();
+
+            return saveResult;
+        } catch (final Exception exception) {
+            return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
+        }
+    }
+
     public Type.ActionResult<DatasetInfoDto> difference(
             final String cookie,
             final DatasetEntity datasetEntity,
@@ -47,35 +94,36 @@ public class TransformationService {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
         }
 
-        final Type.ActionResult<JSONObject> result = PythonExecutor.handleAction(json);
-        if (!result.success()) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
-        }
+        return this.handleTransformation(
+                cookie, json, transformedDatasetName, Helper.stringToFrequency(frequencyEntity.getFrequencyType())
+        );
+    }
+
+    public Type.ActionResult<DatasetInfoDto> logarithm(
+            final String cookie,
+            final DatasetEntity datasetEntity,
+            final String transformedDatasetName,
+            final Boolean useNaturalLog,
+            final Optional<Integer> base
+    ) {
+        final JSONObject json = new JSONObject();
+        final FrequencyEntity frequencyEntity = this.frequencyRepository.findById(datasetEntity.getIdFrequency()).get();
 
         try {
-            final String fileNameFromJson =
-                    result.data().getJSONObject(PythonConstants.TRANSFORMED_FILE_NAME_KEY).getString(PythonConstants.JSON_ELEMENT_RESULT_KEY);
-            final String startDateTimeFromJson =
-                    result.data().getJSONObject(PythonConstants.START_DATE_TIME_KEY).getString(PythonConstants.JSON_ELEMENT_RESULT_KEY);
-            final File file = new File(fileNameFromJson);
-
-            final Type.ActionResult<DatasetInfoDto> saveResult = this.datasetService.tryToSaveDataset(
-                    cookie,
-                    transformedDatasetName,
-                    Helper.fileToMultipartFile(file),
-                    Optional.of(Helper.stringToLocalDateTime(startDateTimeFromJson)),
-                    Optional.of(Constants.DEFAULT_DATE_TIME_FORMAT),
-                    Helper.stringToFrequency(frequencyEntity.getFrequencyType()),
-                    Optional.empty(),
-                    Optional.empty(),
-                    true,
-                    false
+            json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_LOGARITHM);
+            json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
+            json.put(
+                    PythonConstants.PYTHON_FREQUENCY_TYPE_KEY,
+                    PythonHelper.convertToPythonFrequencyType(frequencyEntity.getFrequencyType())
             );
-            file.delete();
-
-            return saveResult;
-        } catch (final Exception exception) {
+            json.put("use_natural_log", useNaturalLog);
+            PythonHelper.appendIfAvailable(json, "base", base);
+        } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
         }
+
+        return this.handleTransformation(
+                cookie, json, transformedDatasetName, Helper.stringToFrequency(frequencyEntity.getFrequencyType())
+        );
     }
 }

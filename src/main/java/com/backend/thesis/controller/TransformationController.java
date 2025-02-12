@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 public class TransformationController {
     private final DatasetService datasetService;
@@ -31,7 +33,7 @@ public class TransformationController {
             final HttpServletRequest request,
             @RequestParam(name = "idDataset") final String idDataset,
             @RequestParam(name = "transformedDatasetName") final String transformedDatasetName,
-            @RequestParam(name = "differenceLevel", required = false) final String differenceLevel
+            @RequestParam(name = "differenceLevel") final String differenceLevel
     ) {
         final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
@@ -47,6 +49,40 @@ public class TransformationController {
                 datasetResult.data(),
                 transformedDatasetName,
                 Helper.stringToLong(differenceLevel)
+        );
+
+        if (result.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
+    @PostMapping(path = "/transformation/logarithm")
+    public ResponseEntity<Type.RequestResult<DatasetInfoDto>> handleLogarithmTransformation(
+            final HttpServletRequest request,
+            @RequestParam(name = "idDataset") final String idDataset,
+            @RequestParam(name = "transformedDatasetName") final String transformedDatasetName,
+            @RequestParam(name = "useNaturalLog") final String useNaturalLog,
+            @RequestParam(name = "base", required = false) final Optional<String> base
+
+    ) {
+        final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
+                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                Helper.stringToLong(idDataset)
+        );
+
+        if (!datasetResult.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
+        }
+
+        final Type.ActionResult<DatasetInfoDto> result = this.transformationService.logarithm(
+                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                datasetResult.data(),
+                transformedDatasetName,
+                Helper.stringToBoolean(useNaturalLog),
+                Helper.tryStringToInt(base)
         );
 
         if (result.success()) {

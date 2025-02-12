@@ -16,6 +16,10 @@ public class PythonConstants {
     public static final String DATASET_OUTPUT_PATH = "storage/python/output";
 
 
+    public static final String SUCCESS_KEY = "success";
+    public static final String EXCEPTION_KEY = "exception";
+
+
     public static final String FILE_NAME_KEY = "file_name";
     public static final String P_VALUE_KEY = "p_value";
     public static final String ACTION_KEY = "action";

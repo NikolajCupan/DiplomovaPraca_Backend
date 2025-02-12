@@ -1,5 +1,10 @@
 package com.backend.thesis.utility.python;
 
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+
+import java.util.Optional;
+
 public class PythonHelper {
     public static String convertToPythonFrequencyType(final String frequency) {
         return switch (frequency) {
@@ -11,5 +16,23 @@ public class PythonHelper {
             case "yearly" -> "YS";
             default -> "";
         };
+    }
+
+    public static <T> void appendIfAvailable(
+            final JSONObject json,
+            final String key,
+            final Optional<T> optionalValue
+    ) throws JSONException {
+        if (optionalValue.isPresent()) {
+            final T value = optionalValue.get();
+
+            if (value instanceof String stringValue) {
+                if (!stringValue.isEmpty()) {
+                    json.put(key, stringValue);
+                }
+            } else {
+                json.put(key, value);
+            }
+        }
     }
 }
