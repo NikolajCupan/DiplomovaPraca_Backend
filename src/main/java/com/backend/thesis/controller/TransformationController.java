@@ -91,4 +91,38 @@ public class TransformationController {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
         }
     }
+
+    @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
+    @PostMapping(path = "/transformation/normalization")
+    public ResponseEntity<Type.RequestResult<DatasetInfoDto>> handleNormalizationTransformation(
+            final HttpServletRequest request,
+            @RequestParam(name = "idDataset") final String idDataset,
+            @RequestParam(name = "transformedDatasetName") final String transformedDatasetName,
+            @RequestParam(name = "min") final String min,
+            @RequestParam(name = "max") final String max
+
+    ) {
+        final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
+                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                Helper.stringToLong(idDataset)
+        );
+
+        if (!datasetResult.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
+        }
+
+        final Type.ActionResult<DatasetInfoDto> result = this.transformationService.normalization(
+                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                datasetResult.data(),
+                transformedDatasetName,
+                Helper.stringToLong(min),
+                Helper.stringToLong(max)
+        );
+
+        if (result.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+        }
+    }
 }
