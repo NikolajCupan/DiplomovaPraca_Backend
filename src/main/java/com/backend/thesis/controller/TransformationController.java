@@ -82,7 +82,7 @@ public class TransformationController {
                 datasetResult.data(),
                 transformedDatasetName,
                 Helper.stringToBoolean(useNaturalLog),
-                Helper.tryStringToInt(base)
+                Helper.tryStringToDouble(base)
         );
 
         if (result.success()) {
@@ -115,8 +115,42 @@ public class TransformationController {
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
                 datasetResult.data(),
                 transformedDatasetName,
-                Helper.stringToLong(min),
-                Helper.stringToLong(max)
+                Helper.stringToDouble(min),
+                Helper.stringToDouble(max)
+        );
+
+        if (result.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
+    @PostMapping(path = "/transformation/standardization")
+    public ResponseEntity<Type.RequestResult<DatasetInfoDto>> handleStandardizationTransformation(
+            final HttpServletRequest request,
+            @RequestParam(name = "idDataset") final String idDataset,
+            @RequestParam(name = "transformedDatasetName") final String transformedDatasetName,
+            @RequestParam(name = "mean") final String mean,
+            @RequestParam(name = "standard_deviation") final String standardDeviation
+
+    ) {
+        final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
+                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                Helper.stringToLong(idDataset)
+        );
+
+        if (!datasetResult.success()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
+        }
+
+        final Type.ActionResult<DatasetInfoDto> result = this.transformationService.standardization(
+                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                datasetResult.data(),
+                transformedDatasetName,
+                Helper.stringToDouble(mean),
+                Helper.stringToDouble(standardDeviation)
         );
 
         if (result.success()) {

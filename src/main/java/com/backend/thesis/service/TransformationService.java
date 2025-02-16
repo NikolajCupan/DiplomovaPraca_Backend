@@ -104,7 +104,7 @@ public class TransformationService {
             final DatasetEntity datasetEntity,
             final String transformedDatasetName,
             final Boolean useNaturalLog,
-            final Optional<Integer> base
+            final Optional<Double> base
     ) {
         final JSONObject json = new JSONObject();
         final FrequencyEntity frequencyEntity = this.frequencyRepository.findById(datasetEntity.getIdFrequency()).get();
@@ -131,8 +131,8 @@ public class TransformationService {
             final String cookie,
             final DatasetEntity datasetEntity,
             final String transformedDatasetName,
-            final Long min,
-            final Long max
+            final Double min,
+            final Double max
     ) {
         final JSONObject json = new JSONObject();
         final FrequencyEntity frequencyEntity = this.frequencyRepository.findById(datasetEntity.getIdFrequency()).get();
@@ -146,6 +146,34 @@ public class TransformationService {
             );
             json.put("min", min);
             json.put("max", max);
+        } catch (final Exception ignore) {
+            return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
+        }
+
+        return this.handleTransformation(
+                cookie, json, transformedDatasetName, Helper.stringToFrequency(frequencyEntity.getFrequencyType())
+        );
+    }
+
+    public Type.ActionResult<DatasetInfoDto> standardization(
+            final String cookie,
+            final DatasetEntity datasetEntity,
+            final String transformedDatasetName,
+            final Double mean,
+            final Double standardDeviation
+    ) {
+        final JSONObject json = new JSONObject();
+        final FrequencyEntity frequencyEntity = this.frequencyRepository.findById(datasetEntity.getIdFrequency()).get();
+
+        try {
+            json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_STANDARDIZATION);
+            json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
+            json.put(
+                    PythonConstants.PYTHON_FREQUENCY_TYPE_KEY,
+                    PythonHelper.convertToPythonFrequencyType(frequencyEntity.getFrequencyType())
+            );
+            json.put("mean", mean);
+            json.put("standard_deviation", standardDeviation);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
         }
