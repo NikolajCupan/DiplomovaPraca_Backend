@@ -22,6 +22,7 @@ public class PythonConstants {
 
     public static final String FILE_NAME_KEY = "file_name";
     public static final String P_VALUE_KEY = "p_value";
+    public static final String TRAIN_PERCENT_KEY = "train_percent";
     public static final String ACTION_KEY = "action";
 
 
@@ -32,6 +33,7 @@ public class PythonConstants {
     public static final String TRANSFORMED_FILE_NAME_KEY = "transformed_file_name";
     public static final String START_DATE_TIME_KEY = "start_date_time";
     public static final String PYTHON_FREQUENCY_TYPE_KEY = "python_frequency";
+    public static final String FREQUENCY_TYPE_KEY = "frequency";
 
 
     public static final String ACTION_DICKEY_FULLER_TEST = "dicker_fuller_test";
@@ -48,4 +50,7 @@ public class PythonConstants {
     public static final String ACTION_LOGARITHM = "logarithm";
     public static final String ACTION_NORMALIZATION = "normalization";
     public static final String ACTION_STANDARDIZATION = "standardization";
+
+
+    public static final String ACTION_ARIMA = "arima";
 }
