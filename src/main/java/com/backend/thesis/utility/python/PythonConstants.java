@@ -24,6 +24,7 @@ public class PythonConstants {
     public static final String P_VALUE_KEY = "p_value";
     public static final String TRAIN_PERCENT_KEY = "train_percent";
     public static final String ACTION_KEY = "action";
+    public static final String FORECAST_COUNT_KEY = "forecast_count";
 
 
     public static final String JSON_ELEMENT_TITLE_KEY = "title";
