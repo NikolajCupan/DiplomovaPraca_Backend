@@ -38,7 +38,8 @@ public class ModelController {
             @RequestParam(name = "seasonal_p") final String seasonal_p,
             @RequestParam(name = "seasonal_d") final String seasonal_d,
             @RequestParam(name = "seasonal_q") final String seasonal_q,
-            @RequestParam(name = "forecast_count") final String forecastCount
+            @RequestParam(name = "forecast_count") final String forecastCount,
+            @RequestParam(name = "pValueTests") final String pValueTests
     ) {
         final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
@@ -59,7 +60,8 @@ public class ModelController {
                 Helper.stringToLong(seasonal_p),
                 Helper.stringToLong(seasonal_d),
                 Helper.stringToLong(seasonal_q),
-                Helper.stringToLong(forecastCount)
+                Helper.stringToLong(forecastCount),
+                Helper.stringToDouble(pValueTests)
         );
 
         if (result.success()) {

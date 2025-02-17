@@ -28,7 +28,8 @@ public class ModelService {
             final Long seasonal_p,
             final Long seasonal_d,
             final Long seasonal_q,
-            final Long forecastCount
+            final Long forecastCount,
+            final Double pValueTests
     ) {
         final JSONObject json = new JSONObject();
         final FrequencyEntity frequencyEntity = this.frequencyRepository.findById(datasetEntity.getIdFrequency()).get();
@@ -56,6 +57,7 @@ public class ModelService {
             json.put("seasonal_q", seasonal_q);
 
             json.put(PythonConstants.FORECAST_COUNT_KEY, forecastCount);
+            json.put(PythonConstants.P_VALUE_KEY, pValueTests);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(false, "Chyba pri vykonávaní akcie", null);
         }
