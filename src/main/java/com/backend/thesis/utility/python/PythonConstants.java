@@ -4,7 +4,7 @@ public class PythonConstants {
     private PythonConstants() {
     }
 
-    public static final int PYTHON_TIMEOUT_MS = 5_000;
+    public static final int PYTHON_TIMEOUT_MS = 1_000_000;
 
     public static final boolean PYTHON_ENABLE_PRINTING = true;
 
@@ -54,4 +54,5 @@ public class PythonConstants {
 
 
     public static final String ACTION_ARIMA = "arima";
+    public static final String ACTION_HOLT_WINTER = "holt_winter";
 }
