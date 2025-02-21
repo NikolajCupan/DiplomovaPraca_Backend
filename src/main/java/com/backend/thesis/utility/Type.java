@@ -10,18 +10,18 @@ public class Type {
     }
 
     public record ActionResult<T>(
-            ActionResultType success,
+            ActionResultType resultType,
             String message,
             T data
     ) {
-        public ActionResult(final ActionResultType success, final String message, final T data) {
-            this.success = success;
+        public ActionResult(final ActionResultType resultType, final String message, final T data) {
+            this.resultType = resultType;
             this.message = message;
             this.data = data;
         }
 
         public boolean isSuccess() {
-            return this.success == ActionResultType.SUCCESS;
+            return this.resultType == ActionResultType.SUCCESS;
         }
     }
 
