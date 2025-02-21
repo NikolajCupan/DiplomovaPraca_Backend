@@ -67,7 +67,7 @@ public class ModelController {
         if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), result.getHttpStatus());
         }
     }
 
@@ -111,7 +111,7 @@ public class ModelController {
         if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), result.getHttpStatus());
         }
     }
 }

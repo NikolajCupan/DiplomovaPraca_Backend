@@ -54,7 +54,7 @@ public class TransformationController {
         if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), result.getHttpStatus());
         }
     }
 
@@ -88,7 +88,7 @@ public class TransformationController {
         if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), result.getHttpStatus());
         }
     }
 
@@ -122,7 +122,7 @@ public class TransformationController {
         if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), result.getHttpStatus());
         }
     }
 
@@ -156,7 +156,7 @@ public class TransformationController {
         if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), result.getHttpStatus());
         }
     }
 }
