@@ -56,7 +56,7 @@ public class PythonExecutor {
         try {
             final ProcessBuilder processBuilder = new ProcessBuilder(
                     "python",
-                    PythonConstants.PYTHON_BASE_DIRECTORY_PATH + "/" + PythonConstants.PYTHON_MAIN_SCRIPT_NAME,
+                    PythonConstants.PYTHON_BASE_DIRECTORY_NAME + "/" + PythonConstants.PYTHON_MAIN_SCRIPT_NAME,
                     jsonFileName
             );
             final Process process = processBuilder.redirectErrorStream(true).start();
