@@ -72,6 +72,38 @@ public class ModelController {
     }
 
     @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
+    @PostMapping(path = "/model/simple-exp-smoothing")
+    public ResponseEntity<Type.RequestResult<String>> handleSimpleExpSmoothing(
+            final HttpServletRequest request,
+            @RequestParam(name = "idDataset") final String idDataset,
+            @RequestParam(name = "train_percent") final String trainPercent,
+            @RequestParam(name = "alpha") final String alpha,
+            @RequestParam(name = "forecast_count") final String forecastCount
+    ) {
+        final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
+                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                Helper.stringToLong(idDataset)
+        );
+
+        if (!datasetResult.isSuccess()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
+        }
+
+        final Type.ActionResult<JSONObject> result = this.modelService.simpleExpSmoothing(
+                datasetResult.data(),
+                Helper.stringToLong(trainPercent),
+                Helper.stringToDouble(alpha),
+                Helper.stringToLong(forecastCount)
+        );
+
+        if (result.isSuccess()) {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), result.getHttpStatus());
+        }
+    }
+
+    @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
     @PostMapping(path = "/model/holt-winter")
     public ResponseEntity<Type.RequestResult<String>> handleHoltWinterModel(
             final HttpServletRequest request,
