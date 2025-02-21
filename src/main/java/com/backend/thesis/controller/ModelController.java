@@ -83,8 +83,7 @@ public class ModelController {
             @RequestParam(name = "alpha") final String alpha,
             @RequestParam(name = "beta") final String beta,
             @RequestParam(name = "gamma") final String gamma,
-            @RequestParam(name = "forecast_count") final String forecastCount,
-            @RequestParam(name = "pValueTests") final String pValueTests
+            @RequestParam(name = "forecast_count") final String forecastCount
     ) {
         final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
@@ -104,8 +103,7 @@ public class ModelController {
                 Helper.stringToDouble(alpha),
                 Helper.stringToDouble(beta),
                 Helper.stringToDouble(gamma),
-                Helper.stringToLong(forecastCount),
-                Helper.stringToDouble(pValueTests)
+                Helper.stringToLong(forecastCount)
         );
 
         if (result.isSuccess()) {

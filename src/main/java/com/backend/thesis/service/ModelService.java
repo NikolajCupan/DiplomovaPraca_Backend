@@ -74,8 +74,7 @@ public class ModelService {
             final Double alpha,
             final Double beta,
             final Double gamma,
-            final Long forecastCount,
-            final Double pValueTests
+            final Long forecastCount
     ) {
         final JSONObject json = new JSONObject();
         final FrequencyEntity frequencyEntity = this.frequencyRepository.findById(datasetEntity.getIdFrequency()).get();
@@ -102,7 +101,6 @@ public class ModelService {
             json.put("gamma", gamma);
 
             json.put(PythonConstants.FORECAST_COUNT_KEY, forecastCount);
-            json.put(PythonConstants.P_VALUE_KEY, pValueTests);
         } catch (final Exception ignore) {
             return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní akcie", null);
         }
