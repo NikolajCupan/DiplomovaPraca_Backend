@@ -96,6 +96,40 @@ public class ModelService {
         return PythonExecutor.handleAction(json);
     }
 
+    public Type.ActionResult<JSONObject> doubleExpSmoothing(
+            final DatasetEntity datasetEntity,
+            final Long trainPercent,
+            final Double alpha,
+            final Double beta,
+            final Long forecastCount
+    ) {
+        final JSONObject json = new JSONObject();
+        final FrequencyEntity frequencyEntity = this.frequencyRepository.findById(datasetEntity.getIdFrequency()).get();
+
+        try {
+            json.put(PythonConstants.ACTION_KEY, PythonConstants.ACTION_DOUBLE_EXP_SMOOTHING);
+            json.put(PythonConstants.FILE_NAME_KEY, datasetEntity.getFileName());
+            json.put(PythonConstants.TRAIN_PERCENT_KEY, trainPercent);
+            json.put(
+                    PythonConstants.PYTHON_FREQUENCY_TYPE_KEY,
+                    PythonHelper.convertToPythonFrequencyType(frequencyEntity.getFrequencyType())
+            );
+            json.put(
+                    PythonConstants.FREQUENCY_TYPE_KEY,
+                    frequencyEntity.getFrequencyType()
+            );
+
+            json.put("alpha", alpha);
+            json.put("beta", beta);
+
+            json.put(PythonConstants.FORECAST_COUNT_KEY, forecastCount);
+        } catch (final Exception ignore) {
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní akcie", null);
+        }
+
+        return PythonExecutor.handleAction(json);
+    }
+
     public Type.ActionResult<JSONObject> holtWinter(
             final DatasetEntity datasetEntity,
             final Long trainPercent,

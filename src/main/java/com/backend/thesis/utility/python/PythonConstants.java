@@ -55,5 +55,6 @@ public class PythonConstants {
 
     public static final String ACTION_ARIMA = "arima";
     public static final String ACTION_SIMPLE_EXP_SMOOTHING = "simple_exp_smoothing";
+    public static final String ACTION_DOUBLE_EXP_SMOOTHING = "double_exp_smoothing";
     public static final String ACTION_HOLT_WINTER = "holt_winter";
 }
