@@ -78,6 +78,11 @@ public class ModelController {
             @RequestParam(name = "idDataset") final String idDataset,
             @RequestParam(name = "train_percent") final String trainPercent,
             @RequestParam(name = "season_length") final String seasonLength,
+            @RequestParam(name = "trend_type") final String trendType,
+            @RequestParam(name = "season_type") final String seasonType,
+            @RequestParam(name = "alpha") final String alpha,
+            @RequestParam(name = "beta") final String beta,
+            @RequestParam(name = "gamma") final String gamma,
             @RequestParam(name = "forecast_count") final String forecastCount,
             @RequestParam(name = "pValueTests") final String pValueTests
     ) {
@@ -94,6 +99,11 @@ public class ModelController {
                 datasetResult.data(),
                 Helper.stringToLong(trainPercent),
                 Helper.stringToLong(seasonLength),
+                trendType,
+                seasonType,
+                Helper.stringToDouble(alpha),
+                Helper.stringToDouble(beta),
+                Helper.stringToDouble(gamma),
                 Helper.stringToLong(forecastCount),
                 Helper.stringToDouble(pValueTests)
         );

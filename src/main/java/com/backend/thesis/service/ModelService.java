@@ -69,6 +69,11 @@ public class ModelService {
             final DatasetEntity datasetEntity,
             final Long trainPercent,
             final Long seasonLength,
+            final String trendType,
+            final String seasonType,
+            final Double alpha,
+            final Double beta,
+            final Double gamma,
             final Long forecastCount,
             final Double pValueTests
     ) {
@@ -88,6 +93,13 @@ public class ModelService {
                     frequencyEntity.getFrequencyType()
             );
             json.put("season_length", seasonLength);
+
+            json.put("trend_type", trendType);
+            json.put("season_type", seasonType);
+
+            json.put("alpha", alpha);
+            json.put("beta", beta);
+            json.put("gamma", gamma);
 
             json.put(PythonConstants.FORECAST_COUNT_KEY, forecastCount);
             json.put(PythonConstants.P_VALUE_KEY, pValueTests);
