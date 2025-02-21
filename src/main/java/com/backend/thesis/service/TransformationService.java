@@ -34,14 +34,14 @@ public class TransformationService {
             final Frequency frequency
     ) {
         final Type.ActionResult<JSONObject> result = PythonExecutor.handleAction(json);
-        if (!result.success()) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
+        if (!result.isSuccess()) {
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní transformácie", null);
         }
 
         try {
             if (!result.data().getBoolean(PythonConstants.SUCCESS_KEY)) {
                 return new Type.ActionResult<>(
-                        false,
+                        Type.ActionResultType.FAILURE,
                         result.data().getJSONObject(PythonConstants.EXCEPTION_KEY).getString(PythonConstants.JSON_ELEMENT_RESULT_KEY),
                         null
                 );
@@ -69,7 +69,7 @@ public class TransformationService {
 
             return saveResult;
         } catch (final Exception exception) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní transformácie", null);
         }
     }
 
@@ -91,7 +91,7 @@ public class TransformationService {
             );
             json.put("difference_level", differenceLevel);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní transformácie", null);
         }
 
         return this.handleTransformation(
@@ -119,7 +119,7 @@ public class TransformationService {
             json.put("use_natural_log", useNaturalLog);
             PythonHelper.appendIfAvailable(json, "base", base);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní transformácie", null);
         }
 
         return this.handleTransformation(
@@ -147,7 +147,7 @@ public class TransformationService {
             json.put("min", min);
             json.put("max", max);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní transformácie", null);
         }
 
         return this.handleTransformation(
@@ -175,7 +175,7 @@ public class TransformationService {
             json.put("mean", mean);
             json.put("standard_deviation", standardDeviation);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní transformácie", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní transformácie", null);
         }
 
         return this.handleTransformation(

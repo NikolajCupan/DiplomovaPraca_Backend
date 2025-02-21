@@ -3,15 +3,25 @@ package com.backend.thesis.utility;
 import java.time.LocalDateTime;
 
 public class Type {
+    public enum ActionResultType {
+        SUCCESS,
+        FAILURE,
+        TIMEOUT
+    }
+
     public record ActionResult<T>(
-            boolean success,
+            ActionResultType success,
             String message,
             T data
     ) {
-        public ActionResult(final boolean success, final String message, final T data) {
+        public ActionResult(final ActionResultType success, final String message, final T data) {
             this.success = success;
             this.message = message;
             this.data = data;
+        }
+
+        public boolean isSuccess() {
+            return this.success == ActionResultType.SUCCESS;
         }
     }
 

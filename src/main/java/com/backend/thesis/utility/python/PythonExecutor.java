@@ -50,8 +50,8 @@ public class PythonExecutor {
         }
     }
 
-    public static boolean executeAction(final String jsonFileName) {
-        boolean success = true;
+    public static PythonHelper.PythonExecutionResult executeAction(final String jsonFileName) {
+        PythonHelper.PythonExecutionResult executionResult = PythonHelper.PythonExecutionResult.FAILURE;
 
         try {
             final ProcessBuilder processBuilder = new ProcessBuilder(
@@ -75,45 +75,46 @@ public class PythonExecutor {
 
             if (!process.waitFor(PythonConstants.PYTHON_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
                 process.destroy();
-                success = false;
+                executionResult = PythonHelper.PythonExecutionResult.TIMEOUT;
             }
 
-            if (process.exitValue() != 0) {
-                success = false;
+            if (process.exitValue() == 0) {
+                executionResult = PythonHelper.PythonExecutionResult.SUCCESS;
             }
 
             if (PythonConstants.PYTHON_ENABLE_PRINTING) {
                 printingThread.join();
             }
-        } catch (final Exception exception) {
-            success = false;
+        } catch (final Exception ignore) {
         }
 
-        return success;
+        return executionResult;
     }
 
     public static Type.ActionResult<JSONObject> handleAction(final JSONObject json) {
         JSONObject outputJson = new JSONObject();
-        boolean success;
+        PythonHelper.PythonExecutionResult executionResult;
 
         try {
             final String inputJsonString = json.toString();
             final String jsonFileName = PythonExecutor.saveJson(inputJsonString);
-            success = PythonExecutor.executeAction(jsonFileName);
+            executionResult = PythonExecutor.executeAction(jsonFileName);
 
-            if (success) {
+            if (executionResult == PythonHelper.PythonExecutionResult.SUCCESS) {
                 outputJson = PythonExecutor.readJson(jsonFileName);
             }
 
             PythonExecutor.deleteFiles(jsonFileName);
         } catch (final Exception exception) {
-            success = false;
+            executionResult = PythonHelper.PythonExecutionResult.FAILURE;
         }
 
-        if (success) {
-            return new Type.ActionResult<>(true, "Akcie bola úspešne vykonaná", outputJson);
+        if (executionResult == PythonHelper.PythonExecutionResult.SUCCESS) {
+            return new Type.ActionResult<>(Type.ActionResultType.SUCCESS, "Akcie bola úspešne vykonaná", outputJson);
+        } else if (executionResult == PythonHelper.PythonExecutionResult.TIMEOUT) {
+            return new Type.ActionResult<>(Type.ActionResultType.TIMEOUT, "Timeout", null);
         } else {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní akcie", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní akcie", null);
         }
     }
 }

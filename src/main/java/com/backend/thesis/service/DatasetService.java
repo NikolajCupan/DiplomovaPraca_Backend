@@ -59,7 +59,7 @@ public class DatasetService {
             );
 
             if (Helper.isInvalidDate(csv.getEndDateTime())) {
-                return new Type.ActionResult<>(false, "Dataset obsahuje neplatné dátumy", null);
+                return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Dataset obsahuje neplatné dátumy", null);
             }
 
             csv.saveToFile();
@@ -80,11 +80,11 @@ public class DatasetService {
             this.datasetRepository.save(dataset);
 
             final DatasetInfoDto datasetInfoDto = this.mapper.datasetEntityToDatasetInfoDto(dataset);
-            return new Type.ActionResult<>(true, "Dataset bol úspešne uložený", datasetInfoDto);
+            return new Type.ActionResult<>(Type.ActionResultType.SUCCESS, "Dataset bol úspešne uložený", datasetInfoDto);
         } catch (final RequestException exception) {
-            return new Type.ActionResult<>(false, exception.getMessage(), null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, exception.getMessage(), null);
         } catch (final Exception exception) {
-            return new Type.ActionResult<>(false, "Neznáma chyba", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Neznáma chyba", null);
         }
     }
 
@@ -92,21 +92,21 @@ public class DatasetService {
         try {
             final Optional<DatasetEntity> datasetEntity = this.datasetRepository.findById(idDataset);
             if (datasetEntity.isEmpty()) {
-                return new Type.ActionResult<>(false, "Dataset nebol nájdený", null);
+                return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Dataset nebol nájdený", null);
             }
 
             final Optional<UserEntity> userEntity = this.userRepository.findById(datasetEntity.get().getIdUser());
             if (userEntity.isEmpty()) {
-                return new Type.ActionResult<>(false, "Používateľ nebol nájdený", null);
+                return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Používateľ nebol nájdený", null);
             }
 
             if (!userEntity.get().getCookie().equals(cookie)) {
-                return new Type.ActionResult<>(false, "Používateľ nemá oprávnenie na prístup k danému súboru", null);
+                return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Používateľ nemá oprávnenie na prístup k danému súboru", null);
             }
 
-            return new Type.ActionResult<>(true, "Dataset bol odoslaný", datasetEntity.get());
+            return new Type.ActionResult<>(Type.ActionResultType.SUCCESS, "Dataset bol odoslaný", datasetEntity.get());
         } catch (final Exception exception) {
-            return new Type.ActionResult<>(false, "Neznáma chyba", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Neznáma chyba", null);
         }
     }
 
@@ -119,7 +119,7 @@ public class DatasetService {
             datasetInfoDtos.add(this.mapper.datasetEntityToDatasetInfoDto(datasetEntity));
         }
 
-        return new Type.ActionResult<>(true, "Datasety boli odoslané", datasetInfoDtos);
+        return new Type.ActionResult<>(Type.ActionResultType.SUCCESS, "Datasety boli odoslané", datasetInfoDtos);
     }
 
     public Type.ActionResult<DatasetForEditingDto> getDatasetOfUserForEditing(
@@ -129,16 +129,16 @@ public class DatasetService {
     ) {
         final Type.ActionResult<DatasetEntity> result = this.getDatasetOfUser(cookie, idDataset);
 
-        if (!result.success()) {
-            return new Type.ActionResult<>(false, result.message(), null);
+        if (!result.isSuccess()) {
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, result.message(), null);
         }
 
         try {
             return new Type.ActionResult<>(
-                    true, "Dataset bol odoslaný na editáciu", this.mapper.datasetEntityToDatasetForEditingDto(result.data(), includeData)
+                    Type.ActionResultType.SUCCESS, "Dataset bol odoslaný na editáciu", this.mapper.datasetEntityToDatasetForEditingDto(result.data(), includeData)
             );
         } catch (final RequestException exception) {
-            return new Type.ActionResult<>(false, exception.getMessage(), null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, exception.getMessage(), null);
         }
     }
 
@@ -149,8 +149,8 @@ public class DatasetService {
             final Optional<String> newColumnName
     ) {
         final Type.ActionResult<DatasetEntity> result = this.getDatasetOfUser(cookie, idDataset);
-        if (!result.success()) {
-            return new Type.ActionResult<>(false, result.message(), null);
+        if (!result.isSuccess()) {
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, result.message(), null);
         }
 
         final DatasetEntity datasetEntity = this.datasetRepository.findById(idDataset).get();
@@ -165,26 +165,26 @@ public class DatasetService {
         final Type.ActionResult<DatasetForEditingDto> updatedDatasetForEditing
                 = this.getDatasetOfUserForEditing(cookie, idDataset, false);
 
-        if (updatedDatasetForEditing.success()) {
-            return new Type.ActionResult<>(true, "Dataset bol úspešne editovaný", updatedDatasetForEditing.data());
+        if (updatedDatasetForEditing.isSuccess()) {
+            return new Type.ActionResult<>(Type.ActionResultType.SUCCESS, "Dataset bol úspešne editovaný", updatedDatasetForEditing.data());
         } else {
-            return new Type.ActionResult<>(false, result.message(), null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, result.message(), null);
         }
     }
 
     public Type.ActionResult<DatasetInfoDto> deleteDataset(final String cookie, final Long idDataset) {
         final Type.ActionResult<DatasetEntity> result = this.getDatasetOfUser(cookie, idDataset);
-        if (!result.success()) {
-            return new Type.ActionResult<>(false, result.message(), null);
+        if (!result.isSuccess()) {
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, result.message(), null);
         }
 
         try {
             this.datasetRepository.deleteByIdDataset(idDataset);
 
             final DatasetInfoDto datasetInfoDto = this.mapper.datasetEntityToDatasetInfoDto(result.data());
-            return new Type.ActionResult<>(true, "Dataset bol úspešne zmazaný", datasetInfoDto);
+            return new Type.ActionResult<>(Type.ActionResultType.SUCCESS, "Dataset bol úspešne zmazaný", datasetInfoDto);
         } catch (final RequestException exception) {
-            return new Type.ActionResult<>(false, result.message(), null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, result.message(), null);
         }
     }
 }

@@ -4,7 +4,7 @@ public class PythonConstants {
     private PythonConstants() {
     }
 
-    public static final int PYTHON_TIMEOUT_MS = 1_000_000;
+    public static final int PYTHON_TIMEOUT_MS = 10_000;
 
     public static final boolean PYTHON_ENABLE_PRINTING = true;
 

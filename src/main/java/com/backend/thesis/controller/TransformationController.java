@@ -40,7 +40,7 @@ public class TransformationController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -51,7 +51,7 @@ public class TransformationController {
                 Helper.stringToLong(differenceLevel)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -73,7 +73,7 @@ public class TransformationController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -85,7 +85,7 @@ public class TransformationController {
                 Helper.tryStringToDouble(base)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -107,7 +107,7 @@ public class TransformationController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -119,7 +119,7 @@ public class TransformationController {
                 Helper.stringToDouble(max)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -141,7 +141,7 @@ public class TransformationController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -153,7 +153,7 @@ public class TransformationController {
                 Helper.stringToDouble(standardDeviation)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);

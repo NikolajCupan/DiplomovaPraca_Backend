@@ -56,7 +56,7 @@ public class FileController {
                 Helper.stringToBoolean(datasetHasHeader)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -74,7 +74,7 @@ public class FileController {
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(), Helper.stringToLong(idDataset)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             try {
                 final File rawFile = new File(Constants.STORAGE_DATASET_PATH, result.data().getFileName() + ".csv");
                 final InputStreamResource resource = new InputStreamResource(new FileInputStream(rawFile));
@@ -103,7 +103,7 @@ public class FileController {
                 request.getAttribute(Constants.SESSION_COOKIE_NAME).toString()
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -122,7 +122,7 @@ public class FileController {
                 true
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -144,7 +144,7 @@ public class FileController {
                 newColumnName
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -162,7 +162,7 @@ public class FileController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);

@@ -59,7 +59,7 @@ public class ModelService {
             json.put(PythonConstants.FORECAST_COUNT_KEY, forecastCount);
             json.put(PythonConstants.P_VALUE_KEY, pValueTests);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní akcie", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní akcie", null);
         }
 
         return PythonExecutor.handleAction(json);
@@ -104,7 +104,7 @@ public class ModelService {
             json.put(PythonConstants.FORECAST_COUNT_KEY, forecastCount);
             json.put(PythonConstants.P_VALUE_KEY, pValueTests);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní akcie", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní akcie", null);
         }
 
         return PythonExecutor.handleAction(json);

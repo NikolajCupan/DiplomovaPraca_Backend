@@ -35,4 +35,10 @@ public class PythonHelper {
             }
         }
     }
+
+    public enum PythonExecutionResult {
+        SUCCESS,
+        FAILURE,
+        TIMEOUT
+    }
 }

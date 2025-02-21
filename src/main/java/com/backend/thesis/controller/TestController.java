@@ -42,7 +42,7 @@ public class TestController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -54,7 +54,7 @@ public class TestController {
                 autolag
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -75,7 +75,7 @@ public class TestController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -86,7 +86,7 @@ public class TestController {
                 Helper.tryStringToInt(nlags)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -106,7 +106,7 @@ public class TestController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -116,7 +116,7 @@ public class TestController {
                 modelType
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -138,7 +138,7 @@ public class TestController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -150,7 +150,7 @@ public class TestController {
                 scaling
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -173,7 +173,7 @@ public class TestController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -186,7 +186,7 @@ public class TestController {
                 Helper.tryStringToBoolean(useBartlettFormula)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -207,7 +207,7 @@ public class TestController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -218,7 +218,7 @@ public class TestController {
                 method
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -239,7 +239,7 @@ public class TestController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -250,7 +250,7 @@ public class TestController {
                 Helper.tryStringToInt(dfCount)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -273,7 +273,7 @@ public class TestController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -286,7 +286,7 @@ public class TestController {
                 Helper.tryStringToInt(dfCount)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);

@@ -32,7 +32,7 @@ public class TestService {
             PythonHelper.appendIfAvailable(json, "regression", regression);
             PythonHelper.appendIfAvailable(json, "autolag", autolag);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní testu", null);
         }
 
         return PythonExecutor.handleAction(json);
@@ -53,7 +53,7 @@ public class TestService {
             PythonHelper.appendIfAvailable(json, "regression", regression);
             PythonHelper.appendIfAvailable(json, "nlags", nlags);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní testu", null);
         }
 
         return PythonExecutor.handleAction(json);
@@ -72,7 +72,7 @@ public class TestService {
             PythonHelper.appendIfAvailable(json, "period", period);
             PythonHelper.appendIfAvailable(json, "model", modelType);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní testu", null);
         }
 
         return PythonExecutor.handleAction(json);
@@ -95,7 +95,7 @@ public class TestService {
             PythonHelper.appendIfAvailable(json, "return_onesided", spectrum);
             PythonHelper.appendIfAvailable(json, "scaling", scaling);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní testu", null);
         }
 
         return PythonExecutor.handleAction(json);
@@ -120,7 +120,7 @@ public class TestService {
             PythonHelper.appendIfAvailable(json, "fft", useFft);
             PythonHelper.appendIfAvailable(json, "bartlett_confint", useBartlettFormula);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní testu", null);
         }
 
         return PythonExecutor.handleAction(json);
@@ -141,7 +141,7 @@ public class TestService {
             PythonHelper.appendIfAvailable(json, "nlags", lagsCount);
             PythonHelper.appendIfAvailable(json, "method", method);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní testu", null);
         }
 
         return PythonExecutor.handleAction(json);
@@ -162,7 +162,7 @@ public class TestService {
             PythonHelper.appendIfAvailable(json, "nlags", maxLag);
             PythonHelper.appendIfAvailable(json, "ddof", dfCount);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní testu", null);
         }
 
         return PythonExecutor.handleAction(json);
@@ -187,7 +187,7 @@ public class TestService {
             PythonHelper.appendIfAvailable(json, "auto_lag", autoLag);
             PythonHelper.appendIfAvailable(json, "model_df", dfCount);
         } catch (final Exception ignore) {
-            return new Type.ActionResult<>(false, "Chyba pri vykonávaní testu", null);
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Chyba pri vykonávaní testu", null);
         }
 
         return PythonExecutor.handleAction(json);

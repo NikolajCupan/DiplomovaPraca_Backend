@@ -46,7 +46,7 @@ public class ModelController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -64,7 +64,7 @@ public class ModelController {
                 Helper.stringToDouble(pValueTests)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
@@ -91,7 +91,7 @@ public class ModelController {
                 Helper.stringToLong(idDataset)
         );
 
-        if (!datasetResult.success()) {
+        if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
 
@@ -108,7 +108,7 @@ public class ModelController {
                 Helper.stringToDouble(pValueTests)
         );
 
-        if (result.success()) {
+        if (result.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.BAD_REQUEST);
