@@ -73,7 +73,7 @@ public class ModelController {
 
     @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
     @PostMapping(path = "/model/simple-exp-smoothing")
-    public ResponseEntity<Type.RequestResult<String>> handleSimpleExpSmoothing(
+    public ResponseEntity<Type.RequestResult<String>> handleSimpleExpSmoothingModel(
             final HttpServletRequest request,
             @RequestParam(name = "idDataset") final String idDataset,
             @RequestParam(name = "train_percent") final String trainPercent,
@@ -105,7 +105,7 @@ public class ModelController {
 
     @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
     @PostMapping(path = "/model/double-exp-smoothing")
-    public ResponseEntity<Type.RequestResult<String>> handleDoubleExpSmoothing(
+    public ResponseEntity<Type.RequestResult<String>> handleDoubleExpSmoothingModel(
             final HttpServletRequest request,
             @RequestParam(name = "idDataset") final String idDataset,
             @RequestParam(name = "train_percent") final String trainPercent,
