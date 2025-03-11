@@ -8,6 +8,19 @@ public class DatasetForEditingDto {
     private DatasetInfoDto datasetInfoDto;
     private List<Type.DatasetRow> rows;
 
+    public double[] getRawValues() {
+        final double[] values = new double[this.rows.size()];
+
+        for (int rowIndex = 0; rowIndex < this.rows.size(); ++rowIndex) {
+            final Type.DatasetRow row = this.rows.get(rowIndex);
+            final double value = Double.parseDouble(row.value());
+
+            values[rowIndex] = value;
+        }
+
+        return values;
+    }
+
     public DatasetInfoDto getDatasetInfoDto() {
         return this.datasetInfoDto;
     }

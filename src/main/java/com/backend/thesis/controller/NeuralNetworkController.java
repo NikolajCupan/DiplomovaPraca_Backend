@@ -1,5 +1,6 @@
 package com.backend.thesis.controller;
 
+import com.backend.thesis.domain.dto.DatasetForEditingDto;
 import com.backend.thesis.domain.entity.DatasetEntity;
 import com.backend.thesis.service.DatasetService;
 import com.backend.thesis.service.NeuralNetworkService;
@@ -47,14 +48,6 @@ public class NeuralNetworkController {
         this.neuralNetworkService = neuralNetworkService;
     }
 
-    public void addToActiveWebsockets(final String sessionId, final String cookie) {
-        this.activeWebsockets.put(sessionId, cookie);
-    }
-
-    public void removeFromActiveWebsockets(final String sessionId) {
-        this.activeWebsockets.remove(sessionId);
-    }
-
     @EventListener
     public void onSocketConnected(final SessionConnectedEvent event) {
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
@@ -64,7 +57,7 @@ public class NeuralNetworkController {
         final String cookie = headerMap.get("login").get(0);
         final String sessionId = sha.getSessionId();
 
-        this.addToActiveWebsockets(sessionId, cookie);
+        this.activeWebsockets.put(cookie, sessionId);
     }
 
     @EventListener
@@ -72,7 +65,7 @@ public class NeuralNetworkController {
         final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
         final String sessionId = sha.getSessionId();
 
-        this.removeFromActiveWebsockets(sessionId);
+        this.activeWebsockets.values().remove(sessionId);
     }
 
     @MessageMapping("/response")
@@ -109,22 +102,30 @@ public class NeuralNetworkController {
             @RequestParam(name = "max_percentage_difference") final String maxPercentageDifference,
             @RequestParam(name = "layers") final String layers
     ) {
+        final String cookie = request.getAttribute(Constants.SESSION_COOKIE_NAME).toString();
         final Type.ActionResult<DatasetEntity> datasetResult = this.datasetService.getDatasetOfUser(
-                request.getAttribute(Constants.SESSION_COOKIE_NAME).toString(),
+                cookie,
                 Helper.stringToLong(idDataset)
         );
 
         if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
+//        if (!this.activeWebsockets.containsKey(cookie)) {
+//            return new ResponseEntity<>(new Type.RequestResult<>("Websocket spojenie nebolo nadviazané", null), HttpStatus.BAD_REQUEST);
+//        }
+
+        final DatasetForEditingDto datasetForEditingDto = this.datasetService.getDatasetOfUserForEditing(
+                cookie, datasetResult.data().getIdDataset(), true
+        ).data();
 
         final Type.ActionResult<JSONObject> result = this.neuralNetworkService.neuralNetwork(
-                datasetResult.data(),
+                datasetForEditingDto,
                 Helper.stringToLong(trainPercent),
                 Helper.stringToLong(forecastCount),
-                Helper.stringToLong(inputWindowSize),
-                Helper.tryStringToInt(batchSize),
-                Helper.stringToLong(epochCount),
+                Helper.stringToLong(inputWindowSize).intValue(),
+                Helper.tryStringToInt(batchSize).orElse(Integer.MAX_VALUE),
+                Helper.stringToLong(epochCount).intValue(),
                 optimizer,
                 Helper.stringToDouble(startingLearningRate),
                 Helper.stringToDouble(learningRateDecay),
