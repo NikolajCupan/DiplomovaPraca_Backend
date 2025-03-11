@@ -8,23 +8,83 @@ import com.backend.thesis.utility.Helper;
 import com.backend.thesis.utility.Type;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.GenericMessage;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.socket.messaging.SessionConnectedEvent;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 public class NeuralNetworkController {
+    private final Map<String, String> activeWebsockets;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
     private final DatasetService datasetService;
     private final NeuralNetworkService neuralNetworkService;
 
-    public NeuralNetworkController(final DatasetService datasetService, final NeuralNetworkService neuralNetworkService) {
+    public NeuralNetworkController(
+            final SimpMessagingTemplate simpMessagingTemplate,
+            final DatasetService datasetService,
+            final NeuralNetworkService neuralNetworkService
+    ) {
+        this.activeWebsockets = new HashMap<>();
+        this.simpMessagingTemplate = simpMessagingTemplate;
+
         this.datasetService = datasetService;
         this.neuralNetworkService = neuralNetworkService;
+    }
+
+    public void addToActiveWebsockets(final String sessionId, final String cookie) {
+        this.activeWebsockets.put(sessionId, cookie);
+    }
+
+    public void removeFromActiveWebsockets(final String sessionId) {
+        this.activeWebsockets.remove(sessionId);
+    }
+
+    @EventListener
+    public void onSocketConnected(final SessionConnectedEvent event) {
+        final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
+        final var header = ((GenericMessage<?>) sha.getHeader("simpConnectMessage")).getHeaders().get("nativeHeaders");
+
+        final Map<String, List<String>> headerMap = (Map<String, List<String>>) header;
+        final String cookie = headerMap.get("login").get(0);
+        final String sessionId = sha.getSessionId();
+
+        this.addToActiveWebsockets(sessionId, cookie);
+    }
+
+    @EventListener
+    public void onSocketDisconnected(SessionDisconnectEvent event) {
+        final StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
+        final String sessionId = sha.getSessionId();
+
+        this.removeFromActiveWebsockets(sessionId);
+    }
+
+    @MessageMapping("/response")
+    public void websocketCommunication(final String payload) {
+        try {
+            final JSONObject jsonPayload = new JSONObject(payload);
+            final String message = jsonPayload.getString("message");
+            final String cookie = jsonPayload.getString("cookie");
+
+            this.simpMessagingTemplate.convertAndSendToUser(cookie, "/queue/notification", message + " <-- yours");
+        } catch (final Exception ignore) {
+        }
     }
 
     @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
