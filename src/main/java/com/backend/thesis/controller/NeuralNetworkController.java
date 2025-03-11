@@ -12,7 +12,6 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.GenericMessage;
@@ -23,10 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 public class NeuralNetworkController {
@@ -41,7 +40,7 @@ public class NeuralNetworkController {
             final DatasetService datasetService,
             final NeuralNetworkService neuralNetworkService
     ) {
-        this.activeWebsockets = new HashMap<>();
+        this.activeWebsockets = new ConcurrentHashMap<>();
         this.simpMessagingTemplate = simpMessagingTemplate;
 
         this.datasetService = datasetService;
@@ -66,18 +65,6 @@ public class NeuralNetworkController {
         final String sessionId = sha.getSessionId();
 
         this.activeWebsockets.values().remove(sessionId);
-    }
-
-    @MessageMapping("/response")
-    public void websocketCommunication(final String payload) {
-        try {
-            final JSONObject jsonPayload = new JSONObject(payload);
-            final String message = jsonPayload.getString("message");
-            final String cookie = jsonPayload.getString("cookie");
-
-            this.simpMessagingTemplate.convertAndSendToUser(cookie, "/queue/notification", message + " <-- yours");
-        } catch (final Exception ignore) {
-        }
     }
 
     @CrossOrigin(exposedHeaders = Constants.SESSION_COOKIE_NAME)
@@ -111,15 +98,19 @@ public class NeuralNetworkController {
         if (!datasetResult.isSuccess()) {
             return new ResponseEntity<>(new Type.RequestResult<>(datasetResult.message(), null), HttpStatus.BAD_REQUEST);
         }
-//        if (!this.activeWebsockets.containsKey(cookie)) {
-//            return new ResponseEntity<>(new Type.RequestResult<>("Websocket spojenie nebolo nadviazané", null), HttpStatus.BAD_REQUEST);
-//        }
+        if (!this.activeWebsockets.containsKey(cookie)) {
+            return new ResponseEntity<>(new Type.RequestResult<>("Websocket spojenie nebolo nadviazané", null), HttpStatus.BAD_REQUEST);
+        }
+
 
         final DatasetForEditingDto datasetForEditingDto = this.datasetService.getDatasetOfUserForEditing(
                 cookie, datasetResult.data().getIdDataset(), true
         ).data();
 
-        final Type.ActionResult<JSONObject> result = this.neuralNetworkService.neuralNetwork(
+        final Type.ActionResult<String> result = this.neuralNetworkService.neuralNetwork(
+                this.simpMessagingTemplate,
+                this.activeWebsockets,
+                cookie,
                 datasetForEditingDto,
                 Helper.stringToLong(trainPercent),
                 Helper.stringToLong(forecastCount),
@@ -140,7 +131,7 @@ public class NeuralNetworkController {
         );
 
         if (result.isSuccess()) {
-            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), result.getHttpStatus());
         }

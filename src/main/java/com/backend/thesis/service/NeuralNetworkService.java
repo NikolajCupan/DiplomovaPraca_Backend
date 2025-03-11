@@ -15,13 +15,16 @@ import NeuralNetwork.LossFunctions.MeanSquaredError;
 import NeuralNetwork.NeuralNetwork;
 import NeuralNetwork.Optimizers.*;
 import com.backend.thesis.domain.dto.DatasetForEditingDto;
+import com.backend.thesis.utility.Constants;
 import com.backend.thesis.utility.Type;
 import com.backend.thesis.utility.other.RequestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.*;
 
 @Service
@@ -46,7 +49,10 @@ public class NeuralNetworkService {
         this.objectMapper = objectMapper;
     }
 
-    public Type.ActionResult<JSONObject> neuralNetwork(
+    public Type.ActionResult<String> neuralNetwork(
+            final SimpMessagingTemplate simpMessagingTemplate,
+            final Map<String, String> activeWebsockets,
+            final String cookie,
             final DatasetForEditingDto datasetForEditingDto,
             final Long trainPercent,
             final Long forecastCount,
@@ -66,21 +72,63 @@ public class NeuralNetworkService {
             final String rawLayers
     ) {
         try {
+            final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            final PrintStream outputStream = new PrintStream(byteArrayOutputStream);
+
+
             final NeuralNetwork neuralNetwork = NeuralNetworkService.buildNeuralNetwork(
-                    this.objectMapper, inputWindowSize, optimizerName, startingLearningRate, learningRateDecay, epsilon, beta1, beta2, rho, momentum, lossFunction, maxPercentageDifference, rawLayers
+                    this.objectMapper, inputWindowSize, optimizerName, startingLearningRate, learningRateDecay, epsilon, beta1, beta2, rho, momentum, lossFunction, maxPercentageDifference, rawLayers, outputStream
             );
             final Batches batches = NeuralNetworkService.buildBatches(
                     datasetForEditingDto, trainPercent, inputWindowSize
             );
 
-            final int printEveryEpoch = (int) Math.ceil(epochCount / 100.0);
+
+            final Thread outputMonitorThread = new Thread(() -> {
+                while (!Thread.currentThread().isInterrupted()) {
+                    try {
+                        if (!activeWebsockets.containsKey(cookie)) {
+                            neuralNetwork.stopTraining();
+                            break;
+                        }
+
+                        final String capturedOutput = byteArrayOutputStream.toString();
+                        if (!capturedOutput.isEmpty()) {
+                            simpMessagingTemplate.convertAndSendToUser(cookie, "/queue/notification", capturedOutput);
+                            byteArrayOutputStream.reset();
+                        }
+
+                        Thread.sleep(500);
+                    } catch (final Exception ignore) {
+                        System.out.println(ignore);
+                        break;
+                    }
+                }
+            });
+
+
+            final int epochPrintEvery = (int) Math.ceil(epochCount / 100.0);
+
+            outputMonitorThread.start();
             neuralNetwork.train(
-                    batches.trainInput, batches.trainTarget, epochCount, batchSize, printEveryEpoch, Integer.MAX_VALUE
+                    batches.trainInput, batches.trainTarget, epochCount, batchSize, epochPrintEvery, Integer.MAX_VALUE, Constants.NEURAL_NETWORK_TIMEOUT_MS
             );
 
-            return null;
+            outputMonitorThread.interrupt();
+            outputMonitorThread.join();
+
+            final String remainingOutput = byteArrayOutputStream.toString();
+            if (!remainingOutput.isEmpty()) {
+                simpMessagingTemplate.convertAndSendToUser(cookie, "/queue/notification", remainingOutput);
+                byteArrayOutputStream.reset();
+            }
+
+
+            return new Type.ActionResult<>(Type.ActionResultType.SUCCESS, "Akcia bola úspešne dokončená", null);
         } catch (final RequestException requestException) {
             return new Type.ActionResult<>(Type.ActionResultType.FAILURE, requestException.getMessage(), null);
+        } catch (final Exception exception) {
+            return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Pri vykonávaní akcie nastala chyba", null);
         }
     }
 
@@ -130,12 +178,13 @@ public class NeuralNetworkService {
             final Double momentum,
             final String lossFunction,
             final Double maxPercentageDifference,
-            final String rawLayers
+            final String rawLayers,
+            final PrintStream outputStream
     ) throws RequestException {
         final List<Map<String, Object>> layers = NeuralNetworkService.processRawLayers(objectMapper, rawLayers);
         assert (layers.getFirst().get("type").equals("hidden"));
 
-        final NeuralNetwork neuralNetwork = new NeuralNetwork(inputWindowSize);
+        final NeuralNetwork neuralNetwork = new NeuralNetwork(inputWindowSize, outputStream);
         int weightsSize = inputWindowSize;
 
         for (final Map<String, Object> layer : layers) {
