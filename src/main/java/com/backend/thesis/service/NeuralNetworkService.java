@@ -170,6 +170,11 @@ public class NeuralNetworkService {
             final double[] fittedValues = neuralNetwork.predict(batches.fullInput).getColumn(0).getDataListRawValues();
 
 
+            final JSONArray forecastDateArray = new JSONArray();
+            final JSONArray forecastRealArray = new JSONArray();
+            final JSONArray forecastFittedArray = new JSONArray();
+
+
             final JSONArray trainDateArray = new JSONArray();
             final JSONArray trainRealArray = new JSONArray();
             final JSONArray trainFittedArray = new JSONArray();
@@ -179,6 +184,10 @@ public class NeuralNetworkService {
             for (int i = 0; i < batches.trainTarget.getRowsSize(); ++i) {
                 final double realValue = batches.fullTarget.getRow(i).getValue(0);
                 final double fittedValue = fittedValues[i];
+
+                forecastDateArray.put(Helper.localDateTimeToString(activeDate));
+                forecastRealArray.put(realValue);
+                forecastFittedArray.put(fittedValue);
 
                 trainDateArray.put(Helper.localDateTimeToString(activeDate));
                 trainRealArray.put(realValue);
@@ -206,6 +215,10 @@ public class NeuralNetworkService {
                     final double realValue = batches.fullTarget.getRow(i).getValue(0);
                     final double fittedValue = fittedValues[i];
 
+                    forecastDateArray.put(Helper.localDateTimeToString(activeDate));
+                    forecastRealArray.put(realValue);
+                    forecastFittedArray.put(fittedValue);
+
                     testDateArray.put(Helper.localDateTimeToString(activeDate));
                     testRealArray.put(realValue);
                     testFittedArray.put(fittedValue);
@@ -224,10 +237,41 @@ public class NeuralNetworkService {
             // Predictions end
 
 
+            // Forecasts
             if (forecastCount > 0) {
-                ;
+                final DataList lastRow = batches.fullInput.getRow(batches.fullInput.getRowsSize() - 1);
+
+                double[] startingRowRaw = Arrays.copyOfRange(lastRow.getDataListRawValues(), 1, lastRow.getDataListSize());
+                startingRowRaw = Arrays.copyOf(startingRowRaw, startingRowRaw.length + 1);
+                startingRowRaw[startingRowRaw.length - 1] = batches.fullTarget.getRow(batches.fullTarget.getRowsSize() - 1).getValue(0);
+
+                final DataList forecast = neuralNetwork.forecast(new DataList(startingRowRaw), forecastCount.intValue());
+                final double[] forecastRaw = forecast.getDataListRawValues();
+
+
+                for (int i = 0; i < forecastRaw.length; ++i) {
+                    forecastDateArray.put(Helper.localDateTimeToString(activeDate));
+                    forecastFittedArray.put(forecastRaw[i]);
+
+                    activeDate = Helper.getNextDate(activeDate, batches.frequency);
+                }
             }
 
+            final JSONObject forecastResult = new JSONObject();
+            forecastResult.put("date", forecastDateArray);
+            forecastResult.put("real", forecastRealArray);
+            forecastResult.put("fitted", forecastFittedArray);
+            result.put("forecast", forecastResult);
+            // Forecasts end
+
+
+            final JSONObject frequencyJSON = new JSONObject();
+            frequencyJSON.put("title", "frekvencia");
+            frequencyJSON.put("result", batches.frequency);
+            result.put("frequency", frequencyJSON);
+
+
+            result.put("success", true);
             return result;
         } catch (final Exception exception) {
             throw new RequestException("Pri spracovaní výsledkov neurónovej siete nastala chyba");

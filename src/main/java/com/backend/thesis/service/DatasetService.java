@@ -59,7 +59,7 @@ public class DatasetService {
             );
 
             if (Helper.isInvalidDate(csv.getEndDateTime())) {
-                return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Dataset obsahuje neplatné dátumy", null);
+                return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Dátum nachádzajúci sa v datasete nemôže presiahnuť rok 2250", null);
             }
 
             csv.saveToFile();
