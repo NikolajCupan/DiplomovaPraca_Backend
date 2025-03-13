@@ -107,7 +107,7 @@ public class NeuralNetworkController {
                 cookie, datasetResult.data().getIdDataset(), true
         ).data();
 
-        final Type.ActionResult<String> result = this.neuralNetworkService.neuralNetwork(
+        final Type.ActionResult<JSONObject> result = this.neuralNetworkService.neuralNetwork(
                 this.simpMessagingTemplate,
                 this.activeWebsockets,
                 cookie,
@@ -131,7 +131,7 @@ public class NeuralNetworkController {
         );
 
         if (result.isSuccess()) {
-            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), HttpStatus.OK);
+            return new ResponseEntity<>(new Type.RequestResult<>(result.message(), result.data().toString()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Type.RequestResult<>(result.message(), null), result.getHttpStatus());
         }

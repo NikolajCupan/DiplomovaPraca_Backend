@@ -15,27 +15,41 @@ import NeuralNetwork.LossFunctions.MeanSquaredError;
 import NeuralNetwork.NeuralNetwork;
 import NeuralNetwork.Optimizers.*;
 import com.backend.thesis.domain.dto.DatasetForEditingDto;
+import com.backend.thesis.domain.dto.Frequency;
 import com.backend.thesis.utility.Constants;
+import com.backend.thesis.utility.Helper;
 import com.backend.thesis.utility.Type;
 import com.backend.thesis.utility.other.RequestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
 public class NeuralNetworkService {
     private static class Batches {
+        private Frequency frequency;
+
+        private LocalDateTime trainTargetStartDate;
+
+        private final Batch fullInput;
+        private final Batch fullTarget;
+
         private final Batch trainInput;
         private final Batch trainTarget;
         private final Batch testInput;
         private final Batch testTarget;
 
         public Batches() {
+            this.fullInput = new Batch();
+            this.fullTarget = new Batch();
+
             this.trainInput = new Batch();
             this.trainTarget = new Batch();
             this.testInput = new Batch();
@@ -49,7 +63,7 @@ public class NeuralNetworkService {
         this.objectMapper = objectMapper;
     }
 
-    public Type.ActionResult<String> neuralNetwork(
+    public Type.ActionResult<JSONObject> neuralNetwork(
             final SimpMessagingTemplate simpMessagingTemplate,
             final Map<String, String> activeWebsockets,
             final String cookie,
@@ -94,7 +108,7 @@ public class NeuralNetworkService {
 
                         final String capturedOutput = byteArrayOutputStream.toString();
                         if (!capturedOutput.isEmpty()) {
-                            simpMessagingTemplate.convertAndSendToUser(cookie, "/queue/notification", capturedOutput);
+                            simpMessagingTemplate.convertAndSendToUser(cookie, "/queue/notification/loss", capturedOutput);
                             byteArrayOutputStream.reset();
                         }
 
@@ -107,6 +121,7 @@ public class NeuralNetworkService {
             });
 
 
+            // Training
             final int epochPrintEvery = (int) Math.ceil(epochCount / 100.0);
 
             outputMonitorThread.start();
@@ -119,12 +134,14 @@ public class NeuralNetworkService {
 
             final String remainingOutput = byteArrayOutputStream.toString();
             if (!remainingOutput.isEmpty()) {
-                simpMessagingTemplate.convertAndSendToUser(cookie, "/queue/notification", remainingOutput);
+                simpMessagingTemplate.convertAndSendToUser(cookie, "/queue/notification/loss", remainingOutput);
                 byteArrayOutputStream.reset();
             }
+            // Training end
 
 
-            return new Type.ActionResult<>(Type.ActionResultType.SUCCESS, "Akcia bola úspešne dokončená", null);
+            final JSONObject jsonResult = NeuralNetworkService.getResult(neuralNetwork, trainPercent, forecastCount, batches, byteArrayOutputStream);
+            return new Type.ActionResult<>(Type.ActionResultType.SUCCESS, "Akcia bola úspešne dokončená", jsonResult);
         } catch (final RequestException requestException) {
             return new Type.ActionResult<>(Type.ActionResultType.FAILURE, requestException.getMessage(), null);
         } catch (final Exception exception) {
@@ -132,7 +149,136 @@ public class NeuralNetworkService {
         }
     }
 
+    private static JSONObject getResult(
+            final NeuralNetwork neuralNetwork,
+            final Long trainPercent,
+            final Long forecastCount,
+            final Batches batches,
+            final ByteArrayOutputStream byteArrayOutputStream
+    ) throws RequestException {
+        try {
+            final JSONObject result = new JSONObject();
+
+            // Accuracy
+            result.put("train_accuracy", NeuralNetworkService.getAccuracyMetrics(neuralNetwork, batches.trainInput, batches.trainTarget, byteArrayOutputStream));
+            if (trainPercent < 100) {
+                result.put("test_accuracy", NeuralNetworkService.getAccuracyMetrics(neuralNetwork, batches.testInput, batches.testTarget, byteArrayOutputStream));
+            }
+            // Accuracy end
+
+            // Predictions
+            final double[] fittedValues = neuralNetwork.predict(batches.fullInput).getColumn(0).getDataListRawValues();
+
+
+            final JSONArray trainDateArray = new JSONArray();
+            final JSONArray trainRealArray = new JSONArray();
+            final JSONArray trainFittedArray = new JSONArray();
+            final JSONArray trainResidualsArray = new JSONArray();
+
+            LocalDateTime activeDate = batches.trainTargetStartDate;
+            for (int i = 0; i < batches.trainTarget.getRowsSize(); ++i) {
+                final double realValue = batches.fullTarget.getRow(i).getValue(0);
+                final double fittedValue = fittedValues[i];
+
+                trainDateArray.put(Helper.localDateTimeToString(activeDate));
+                trainRealArray.put(realValue);
+                trainFittedArray.put(fittedValue);
+                trainResidualsArray.put(realValue - fittedValue);
+
+                activeDate = Helper.getNextDate(activeDate, batches.frequency);
+            }
+
+            final JSONObject trainResult = new JSONObject();
+            trainResult.put("date", trainDateArray);
+            trainResult.put("real", trainRealArray);
+            trainResult.put("fitted", trainFittedArray);
+            trainResult.put("residuals", trainResidualsArray);
+            result.put("train", trainResult);
+
+
+            if (trainPercent < 100) {
+                final JSONArray testDateArray = new JSONArray();
+                final JSONArray testRealArray = new JSONArray();
+                final JSONArray testFittedArray = new JSONArray();
+                final JSONArray testResidualsArray = new JSONArray();
+
+                for (int i = batches.trainTarget.getRowsSize(); i < fittedValues.length; ++i) {
+                    final double realValue = batches.fullTarget.getRow(i).getValue(0);
+                    final double fittedValue = fittedValues[i];
+
+                    testDateArray.put(Helper.localDateTimeToString(activeDate));
+                    testRealArray.put(realValue);
+                    testFittedArray.put(fittedValue);
+                    testResidualsArray.put(realValue - fittedValue);
+
+                    activeDate = Helper.getNextDate(activeDate, batches.frequency);
+                }
+
+                final JSONObject testResult = new JSONObject();
+                testResult.put("date", testDateArray);
+                testResult.put("real", testRealArray);
+                testResult.put("fitted", testFittedArray);
+                testResult.put("residuals", testResidualsArray);
+                result.put("test", testResult);
+            }
+            // Predictions end
+
+
+            if (forecastCount > 0) {
+                ;
+            }
+
+            return result;
+        } catch (final Exception exception) {
+            throw new RequestException("Pri spracovaní výsledkov neurónovej siete nastala chyba");
+        }
+    }
+
+    private static JSONObject getAccuracyMetrics(final NeuralNetwork neuralNetwork, final Batch input, final Batch target, final ByteArrayOutputStream byteArrayOutputStream) throws Exception {
+        final JSONObject result = new JSONObject();
+
+        neuralNetwork.test(input, target);
+        final JSONObject capturedTestOutput = new JSONObject(byteArrayOutputStream.toString());
+        result.put("Presnosť", capturedTestOutput.getDouble("accuracy"));
+
+        final Batch predicted = neuralNetwork.predict(input);
+        result.put("mse", NeuralNetworkService.calculateMSE(input.getColumn(0), predicted.getColumn(0)));
+        result.put("rmse", NeuralNetworkService.calculateRMSE(input.getColumn(0), predicted.getColumn(0)));
+        result.put("mae", NeuralNetworkService.calculateMAE(input.getColumn(0), predicted.getColumn(0)));
+
+        return result;
+    }
+
+    private static double calculateMSE(final DataList predicted, final DataList target) {
+        double sum = 0.0;
+        for (int i = 0; i < predicted.getDataListSize(); ++i) {
+            sum += Math.pow(target.getValue(i) - predicted.getValue(i), 2.0);
+        }
+
+        return sum / predicted.getDataListSize();
+    }
+
+    private static double calculateRMSE(final DataList predicted, final DataList target) {
+        double sum = 0.0;
+        for (int i = 0; i < predicted.getDataListSize(); ++i) {
+            sum += Math.pow(target.getValue(i) - predicted.getValue(i), 2.0);
+        }
+
+        return Math.sqrt(sum / predicted.getDataListSize());
+    }
+
+    private static double calculateMAE(final DataList predicted, final DataList target) {
+        double sum = 0.0;
+        for (int i = 0; i < predicted.getDataListSize(); ++i) {
+            sum += Math.abs(target.getValue(i) - predicted.getValue(i));
+        }
+
+        return sum / predicted.getDataListSize();
+    }
+
+
     private static Batches buildBatches(final DatasetForEditingDto datasetForEditingDto, final Long trainPercent, final int inputWindowSize) throws RequestException {
+        final List<Type.DatasetRow> rows = datasetForEditingDto.getRows();
         final double[] rawValues = datasetForEditingDto.getRawValues();
 
         final int datasetSize = rawValues.length;
@@ -142,11 +288,17 @@ public class NeuralNetworkService {
         final double[] rawTrainValues = Arrays.copyOfRange(rawValues, 0, trainSize);
         final double[] rawTestValues = Arrays.copyOfRange(rawValues, trainSize, datasetSize);
 
-        if (inputWindowSize >= trainSize || inputWindowSize >= testSize) {
+        if (inputWindowSize >= trainSize || (testSize > 0 && inputWindowSize >= testSize)) {
             throw new RequestException("Veľkosť vstupného okna je príliš veľká");
         }
 
+
         final Batches batches = new Batches();
+        batches.frequency = Helper.stringToFrequency(datasetForEditingDto.getDatasetInfoDto().getFrequencyType());
+        batches.trainTargetStartDate = rows.get(inputWindowSize).dateTime();
+
+
+        NeuralNetworkService.processRawValues(rawValues, inputWindowSize, batches.fullInput, batches.fullTarget);
         NeuralNetworkService.processRawValues(rawTrainValues, inputWindowSize, batches.trainInput, batches.trainTarget);
         NeuralNetworkService.processRawValues(rawTestValues, inputWindowSize, batches.testInput, batches.testTarget);
 
