@@ -46,11 +46,39 @@ public class CsvFile {
     }
 
     private final String fileName;
-    private final List<Type.DatasetRow> data;
+    private List<Type.DatasetRow> data;
 
     public CsvFile(final String fileName) {
         this.fileName = fileName;
         this.data = new ArrayList<>();
+    }
+
+    public void fillDates(final Frequency frequency) throws RequestException {
+        final List<Type.DatasetRow> newData = new ArrayList<>();
+
+        for (int rowIndex = 1; rowIndex < this.data.size(); ++rowIndex) {
+            final Type.DatasetRow previousRow = this.data.get(rowIndex - 1);
+            newData.add(previousRow);
+
+            final Type.DatasetRow nextRow = this.data.get(rowIndex);
+            final LocalDateTime expectedNextDate = Helper.getNextDate(previousRow.dateTime(), frequency);
+
+            if (nextRow.dateTime().isAfter(expectedNextDate)) {
+                // Fill interval with empty values
+                LocalDateTime currentDate = expectedNextDate;
+
+                while (!currentDate.isEqual(nextRow.dateTime())) {
+                    newData.add(new Type.DatasetRow(currentDate, ""));
+                    currentDate = Helper.getNextDate(currentDate, frequency);
+
+                    if (Helper.isInvalidDate(currentDate)) {
+                        throw new RequestException("Pri spracovaní dátumov nastala chyba");
+                    }
+                }
+            }
+        }
+
+        this.data = newData;
     }
 
     public boolean trim() throws RequestException {

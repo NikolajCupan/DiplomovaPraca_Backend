@@ -45,12 +45,6 @@ public class CsvParser {
 
             for (final String rawDate : rawDateColumn) {
                 final LocalDateTime extractedDate = CsvParser.truncateDate(Helper.stringToLocalDateTime(rawDate, dateFormat), frequency);
-                final LocalDateTime expectedDate = Helper.getNextDate(dateColumn.getLast(), frequency);
-
-                if (!extractedDate.isEqual(expectedDate)) {
-                    throw new RequestException("Chyba pri spracovaní stĺpca s dátumom (nesprávne nastavená frekvencia)");
-                }
-
                 dateColumn.add(extractedDate);
             }
 
@@ -182,6 +176,7 @@ public class CsvParser {
             parsedCsv.addRow(dateColumn.get(i), dataColumn.get(i));
         }
 
+        parsedCsv.fillDates(frequency);
         parsedCsv.trim();
         return parsedCsv;
     }
