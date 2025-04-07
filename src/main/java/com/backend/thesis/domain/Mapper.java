@@ -11,6 +11,7 @@ import com.backend.thesis.utility.csv.CsvFile;
 import com.backend.thesis.utility.other.RequestException;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Component
@@ -48,6 +49,8 @@ public class Mapper {
         if (includeData) {
             final CsvFile csvFile = CsvFile.readFromFile(datasetEntity.getFileName());
             datasetForEditingDto.setRows(csvFile.getData());
+        } else {
+            datasetForEditingDto.setRows(new ArrayList<>());
         }
 
         return datasetForEditingDto;
