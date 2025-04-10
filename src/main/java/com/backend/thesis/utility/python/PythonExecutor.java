@@ -3,7 +3,7 @@ package com.backend.thesis.utility.python;
 import com.backend.thesis.utility.Helper;
 import com.backend.thesis.utility.Type;
 import org.apache.commons.io.IOUtils;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.PrintWriter;

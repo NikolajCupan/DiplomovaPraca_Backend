@@ -21,8 +21,8 @@ import com.backend.thesis.utility.Helper;
 import com.backend.thesis.utility.Type;
 import com.backend.thesis.utility.other.RequestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 

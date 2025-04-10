@@ -7,7 +7,7 @@ import com.backend.thesis.utility.Type;
 import com.backend.thesis.utility.python.PythonConstants;
 import com.backend.thesis.utility.python.PythonExecutor;
 import com.backend.thesis.utility.python.PythonHelper;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 @Service

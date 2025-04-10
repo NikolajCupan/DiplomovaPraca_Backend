@@ -7,7 +7,7 @@ import com.backend.thesis.utility.Constants;
 import com.backend.thesis.utility.Helper;
 import com.backend.thesis.utility.Type;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
