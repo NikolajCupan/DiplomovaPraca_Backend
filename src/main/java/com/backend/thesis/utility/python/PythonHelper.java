@@ -10,7 +10,7 @@ public class PythonHelper {
         return switch (frequency) {
             case "hourly" -> "H";
             case "daily" -> "D";
-            case "weekly" -> "W";
+            case "weekly" -> "7D";
             case "monthly" -> "MS";
             case "quarterly" -> "QS";
             case "yearly" -> "YS";
