@@ -8,13 +8,17 @@ public class DatasetForEditingDto {
     private DatasetInfoDto datasetInfoDto;
     private List<Type.DatasetRow> rows;
 
-    public double[] getRawValues() {
+    public double[] internalGetRawValues() {
         final double[] values = new double[this.rows.size()];
 
         for (int rowIndex = 0; rowIndex < this.rows.size(); ++rowIndex) {
             final Type.DatasetRow row = this.rows.get(rowIndex);
-            final double value = Double.parseDouble(row.value());
 
+            if (row.value().isEmpty()) {
+                throw new RuntimeException("Dataset obsahuje chýbajúce hodnoty");
+            }
+
+            final double value = Double.parseDouble(row.value());
             values[rowIndex] = value;
         }
 

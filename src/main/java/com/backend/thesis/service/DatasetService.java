@@ -62,6 +62,10 @@ public class DatasetService {
                 return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Dátum nachádzajúci sa v datasete nemôže presiahnuť rok 2250", null);
             }
 
+            if (csv.hasMissingValues()) {
+                return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Dataset obsahuje chýbajúce hodnoty", null);
+            }
+
             if (csv.getData().size() > Constants.MAXIMUM_ROWS_COUNT) {
                 return new Type.ActionResult<>(Type.ActionResultType.FAILURE, "Počet riadkov v datasete nesmie presiahnuť " + Constants.MAXIMUM_ROWS_COUNT, null);
             }

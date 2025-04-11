@@ -267,7 +267,7 @@ public class NeuralNetworkService {
 
             final JSONObject frequencyJSON = new JSONObject();
             frequencyJSON.put("title", "frekvencia");
-            frequencyJSON.put("result", batches.frequency);
+            frequencyJSON.put("result", batches.frequency.label);
             result.put("frequency", frequencyJSON);
 
 
@@ -323,7 +323,7 @@ public class NeuralNetworkService {
 
     private static Batches buildBatches(final DatasetForEditingDto datasetForEditingDto, final Long trainPercent, final int inputWindowSize) throws RequestException {
         final List<Type.DatasetRow> rows = datasetForEditingDto.getRows();
-        final double[] rawValues = datasetForEditingDto.getRawValues();
+        final double[] rawValues = datasetForEditingDto.internalGetRawValues();
 
         final int datasetSize = rawValues.length;
         final int trainSize = (int) (datasetSize / 100.0 * trainPercent);

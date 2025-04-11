@@ -53,6 +53,16 @@ public class CsvFile {
         this.data = new ArrayList<>();
     }
 
+    public boolean hasMissingValues() {
+        for (final Type.DatasetRow row : this.data) {
+            if (row.value().isEmpty()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void fillDates(final Frequency frequency) throws RequestException {
         final List<Type.DatasetRow> newData = new ArrayList<>();
 
