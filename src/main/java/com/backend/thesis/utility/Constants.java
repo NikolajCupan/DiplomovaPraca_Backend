@@ -21,5 +21,5 @@ public class Constants {
     public static final String CSV_DELIMITER = ",";
     public static final String EMPTY_VALUE = "-";
 
-    public static final int NEURAL_NETWORK_TIMEOUT_MS = 120_000;
+    public static final int NEURAL_NETWORK_TIMEOUT_MS = 300_000;
 }

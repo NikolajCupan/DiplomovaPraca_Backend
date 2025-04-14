@@ -6,7 +6,7 @@ public class PythonConstants {
 
     //
     // Other
-    public static final int PYTHON_TIMEOUT_MS = 30_000;
+    public static final int PYTHON_TIMEOUT_MS = 120_000;
     public static final boolean PYTHON_ENABLE_PRINTING = true;
     // Other end
     //
