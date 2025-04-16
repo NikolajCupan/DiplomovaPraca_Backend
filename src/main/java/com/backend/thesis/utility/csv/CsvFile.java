@@ -88,6 +88,17 @@ public class CsvFile {
             }
         }
 
+        final LocalDateTime newDataLastDate = newData.getLast().dateTime();
+        final LocalDateTime originalDataLastDate = this.data.getLast().dateTime();
+
+        if (newDataLastDate.isBefore(originalDataLastDate)) {
+            final LocalDateTime nextDate = Helper.getNextDate(newDataLastDate, frequency);
+
+            if (nextDate.isEqual(originalDataLastDate)) {
+                newData.add(this.data.getLast());
+            }
+        }
+
         this.data = newData;
     }
 
